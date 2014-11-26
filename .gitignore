@@ -52,3 +52,7 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Local settings
+dev.py
+static/
