@@ -56,6 +56,11 @@
         </p>
       </div>
     </div>
+                  <div class="equipos">
+          {% for equipo in equipos %}
+            <img class="escudo" src="{% static equipo.escudo.url %}"></img>
+          {% endfor %}
+        </div>
   </div>
 </div>
 {% endblock %}

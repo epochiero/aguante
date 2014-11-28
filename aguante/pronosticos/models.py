@@ -1,8 +1,18 @@
 #-*- coding: utf-8 -*-
 from django.contrib.auth.models import User
+from django.core.files import File
 from django.db import models
 
+from io import BytesIO
+import logging
+from urllib.parse import urlparse
+from urllib.request import urlopen
+
+from crawlers.crawlers import UniversoFutbolCrawler
+
 __all__ = ('Equipo', 'Partido', 'Fecha', 'Torneo', 'Pronostico',)
+
+logger = logging.getLogger(__name__)
 
 
 class Equipo(models.Model):
@@ -10,7 +20,7 @@ class Equipo(models.Model):
     """ Modelo para los equipos. """
     nombre = models.CharField(max_length=50)
     escudo = models.ImageField(
-        upload_to='equipos_media', blank=True, null=True)
+        upload_to='equipos', blank=True, null=True)
 
     def __str__(self):
         return self.nombre
@@ -52,10 +62,35 @@ class Torneo(models.Model):
     """ Modelo para un torneo. """
     nombre = models.CharField(max_length=100)
     activo = models.BooleanField(default=False)
-    equipos = models.ManyToManyField('Equipo', related_name='torneos')
+    universofutbol_id = models.PositiveIntegerField()
+    equipos = models.ManyToManyField(
+        'Equipo', related_name='torneos', blank=True, null=True)
 
     def __str__(self):
         return self.nombre
+
+    def cargar_equipos(self):
+        crawler = UniversoFutbolCrawler(self.universofutbol_id)
+        equipos = crawler.get_equipos()
+
+        for equipo in equipos:
+            self._cargar_equipo(equipo)
+
+    def _cargar_equipo(self, equipo):
+        logger.info("Cargando equipo para {torneo}: {equipo}".format(
+            torneo=self.nombre, equipo=equipo['nombre']))
+
+        # Obtener imagen del escudo
+        escudo_url = equipo['escudo_url']
+        imagen = urlopen(escudo_url)
+        imagen_io = BytesIO(imagen.read())
+        imagen_path = urlparse(escudo_url).path.split('/')[-1]
+
+        nuevo_equipo = Equipo(nombre=equipo['nombre'])
+        nuevo_equipo.escudo.save(imagen_path, File(imagen_io))
+        nuevo_equipo.save()
+        self.equipos.add(nuevo_equipo)
+        self.save()
 
 
 class Pronostico(models.Model):

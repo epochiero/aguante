@@ -56,3 +56,5 @@ target/
 # Local settings
 dev.py
 static/
+media/
+

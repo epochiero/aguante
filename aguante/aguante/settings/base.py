@@ -2,7 +2,6 @@ import os
 BASE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..')
 
 # Application definition
-
 INSTALLED_APPS = (
     'frontend',
     'pronosticos',
@@ -51,7 +50,6 @@ WSGI_APPLICATION = 'aguante.wsgi.application'
 
 
 # Internationalization
-
 LANGUAGE_CODE = 'es-AR'
 
 TIME_ZONE = 'UTC'
@@ -63,19 +61,19 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Media files (user-uploaded)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+MEDIA_URL = '/'
+
+
+# Static files (CSS, JavaScript, Images)
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'media'),
-)
-
 
 # Third-party apps configuration
-
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
