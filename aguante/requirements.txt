@@ -2,6 +2,7 @@ Django==1.7.1
 Pillow==2.6.1
 djangorestframework==2.4.4
 django-grappelli==2.6.3
+psycopg2==2.5.4
 pyquery==1.2.9
 
 ipdb
