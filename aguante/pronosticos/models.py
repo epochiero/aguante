@@ -8,9 +8,8 @@ import logging
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
+from common.models import EstadoPartido
 from crawlers.crawlers import UniversoFutbolCrawler
-
-__all__ = ('Equipo', 'Partido', 'Fecha', 'Torneo', 'Pronostico',)
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +32,12 @@ class Partido(models.Model):
       no un pronóstico.
     - fecha se refiere a la fecha del torneo (1º, 2º, etc.)
     - timestamp es la fecha y hora del partido. """
+
+    ESTADO_CHOICES = ((EstadoPartido.NO_EMPEZADO, 'No empezado'),
+                      (EstadoPartido.EN_JUEGO, 'En juego'),
+                      (EstadoPartido.TERMINADO, 'Terminado'),
+                      )
+
     equipo_local = models.ForeignKey('Equipo', related_name='partidos_local')
     goles_local = models.IntegerField(blank=True, null=True)
     equipo_visitante = models.ForeignKey(
@@ -40,6 +45,8 @@ class Partido(models.Model):
     goles_visitante = models.IntegerField(blank=True, null=True)
     fecha = models.ForeignKey('Fecha', related_name='partidos')
     timestamp = models.DateTimeField(blank=True, null=True)
+    estado = models.IntegerField(
+        choices=ESTADO_CHOICES, default=EstadoPartido.NO_EMPEZADO)
 
     def __str__(self):
         return "{local} vs. {visitante}, {torneo}".format(local=self.equipo_local.nombre,
@@ -49,6 +56,9 @@ class Partido(models.Model):
 
 class Fecha(models.Model):
 
+    class Meta:
+        unique_together = ('numero', 'torneo')
+
     """ Modelo para una fecha de un torneo. """
     numero = models.PositiveIntegerField()
     torneo = models.ForeignKey('Torneo', related_name='fechas')
@@ -56,13 +66,15 @@ class Fecha(models.Model):
     def __str__(self):
         return "Fecha {nro} {torneo}".format(nro=self.numero, torneo=self.torneo.nombre)
 
+    # def actualizar_partidos(self):
+
 
 class Torneo(models.Model):
 
     """ Modelo para un torneo. """
     nombre = models.CharField(max_length=100)
     activo = models.BooleanField(default=False)
-    universofutbol_id = models.PositiveIntegerField()
+    universofutbol_id = models.PositiveIntegerField(unique=True)
     equipos = models.ManyToManyField(
         'Equipo', related_name='torneos', blank=True, null=True)
 
@@ -75,6 +87,12 @@ class Torneo(models.Model):
 
         for equipo in equipos:
             self._cargar_equipo(equipo)
+
+    def cargar_fechas(self):
+        for i in range(1, 20):
+            if not Fecha.objects.filter(numero=i, torneo=self).exists():
+                fecha = Fecha(numero=i, torneo=self)
+                fecha.save()
 
     def _cargar_equipo(self, equipo):
         logger.info("Cargando equipo para {torneo}: {equipo}".format(

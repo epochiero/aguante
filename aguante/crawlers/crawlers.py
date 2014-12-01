@@ -1,6 +1,8 @@
 from pyquery import PyQuery as pq
 from urllib.parse import urljoin
 
+from common.models import EstadoPartido
+
 __all__ = ['UniversoFutbolCrawler']
 
 
@@ -27,11 +29,41 @@ class UniversoFutbolCrawler():
         # td.equipoderecha matchea el equipo visitante de cada partido
         td_der = [pq(elem) for elem in html('td.equipoderecha')]
 
-        for x in range(len(td_der)):
-            print(td_izq[x * 2]('img')[0].attrib['src'])
-            print(td_der[x]('img')[0].attrib['src'])
-            print(td_izq[x * 2].text() + " " +
-                  td_izq[x * 2 + 1].text() + " " + td_der[x].text())
+        # Los partidos aún no empezados no tienen un td.equipoizquierda
+        # con el resultado. Eso nos sirve para calcular la cantidad
+        # de partidos en juego o terminados.
+        partidos_empezados = len(td_izq) - 10
+        resultados = []
+
+        # Primero, los partidos que tienen resultado
+        for x in range(partidos_empezados):
+            goles_local, goles_visitante = map(
+                int, td_izq[x * 2 + 1].text().split('-'))
+            resultados.append({'equipo_local': td_izq[x * 2].text(),
+                               'equipo_visitante': td_der[x].text(),
+                               'goles_local': goles_local,
+                               'goles_visitante': goles_visitante,
+                               'estado': self._get_estado_partido(td_izq[x * 2 + 1])})
+
+        # Después, los que no
+        for x in range(partidos_empezados, 10):
+            indice_izq = x + partidos_empezados
+            resultados.append({'equipo_local': td_izq[indice_izq].text(),
+                               'equipo_visitante': td_der[x].text(),
+                               'goles_local': 0,
+                               'goles_visitante': 0,
+                               'estado': EstadoPartido.NO_EMPEZADO})
+
+        return resultados
+
+    def _get_estado_partido(self, elem):
+        ''' Usa la url de la imagen para determinar el estado del partido. '''
+        src = elem('img').attr('src')
+        if 'partidoterminado' in src:
+            return EstadoPartido.TERMINADO
+        elif 'partidoenjuego' in src:
+            return EstadoPartido.EN_JUEGO
+        return EstadoPartido.NO_EMPEZADO
 
     def get_equipos(self):
         target_url = self.EQUIPOS_URL.format(camp=self.camp_id)
