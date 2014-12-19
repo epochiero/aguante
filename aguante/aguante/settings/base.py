@@ -64,7 +64,7 @@ USE_TZ = True
 # Media files (user-uploaded)
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-MEDIA_URL = '/'
+MEDIA_URL = '/media/'
 
 
 # Static files (CSS, JavaScript, Images)

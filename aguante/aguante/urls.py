@@ -12,7 +12,7 @@ router.register(r'equipos', EquipoViewSet)
 
 urlpatterns = patterns('',
     # Apps
-    url(r'^$', include('frontend.urls')),
+    url(r'', include('frontend.urls')),
 
     # API
     url(r'^api/', include(router.urls)),

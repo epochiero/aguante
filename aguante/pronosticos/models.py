@@ -62,11 +62,31 @@ class Fecha(models.Model):
     """ Modelo para una fecha de un torneo. """
     numero = models.PositiveIntegerField()
     torneo = models.ForeignKey('Torneo', related_name='fechas')
+    activa = models.BooleanField(default=False)
 
     def __str__(self):
         return "Fecha {nro} {torneo}".format(nro=self.numero, torneo=self.torneo.nombre)
 
-    # def actualizar_partidos(self):
+    def save(self, *args, **kwargs):
+        if self.activa:
+            try:
+                # Marcar como inactiva la fecha anterior (si es que lo está)
+                fecha_activa = Fecha.objects.get(activa=True)
+                fecha_activa.activa = False
+                fecha_activa.save()
+            except Fecha.DoesNotExist:
+                pass
+        return super().save(*args, **kwargs)
+
+    def get_partidos(self):
+        #TODO: crear tasks para actualizar la data periodicamente
+        self.crawler = UniversoFutbolCrawler(self.torneo.universofutbol_id)
+        partidos = self.crawler.get_fecha(self.numero)
+
+        for partido in partidos:
+            partido.update({'equipo_local': Equipo.objects.get(nombre=partido['equipo_local']),
+                            'equipo_visitante': Equipo.objects.get(nombre=partido['equipo_visitante'])})
+        return partidos
 
 
 class Torneo(models.Model):
@@ -81,7 +101,20 @@ class Torneo(models.Model):
     def __str__(self):
         return self.nombre
 
+    def save(self, *args, **kwargs):
+        if self.activo:
+            try:
+                # Marcar como inactivo el torneo anterior (si es que lo está)
+                torneo_activo = Torneo.objects.get(activo=True)
+                torneo_activo.activa = False
+                torneo_activo.save()
+            except Torneo.DoesNotExist:
+                pass
+        return super().save(*args, **kwargs)
+
     def cargar_equipos(self):
+        """ Usa el crawler para buscar nombres y escudos
+        de los equipos del torneo. """
         crawler = UniversoFutbolCrawler(self.universofutbol_id)
         equipos = crawler.get_equipos()
 
@@ -93,6 +126,21 @@ class Torneo(models.Model):
             if not Fecha.objects.filter(numero=i, torneo=self).exists():
                 fecha = Fecha(numero=i, torneo=self)
                 fecha.save()
+
+    def get_fecha_activa(self):
+        """ Devuelve la fecha activa del torneo. """
+        try:
+            return self.fechas.get(activa=True)
+        except Fecha.DoesNotExist:
+            return None
+
+    @classmethod
+    def get_activo(cls):
+        """ Devuelve el torneo activo. """
+        try:
+            return cls.objects.get(activo=True)
+        except cls.DoesNotExist:
+            return None
 
     def _cargar_equipo(self, equipo):
         logger.info("Cargando equipo para {torneo}: {equipo}".format(
