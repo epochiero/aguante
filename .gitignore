@@ -55,6 +55,6 @@ target/
 
 # Local settings
 dev.py
-static/
-media/
+aguante/static
+aguante/media
 
