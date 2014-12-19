@@ -106,7 +106,7 @@ class Torneo(models.Model):
             try:
                 # Marcar como inactivo el torneo anterior (si es que lo está)
                 torneo_activo = Torneo.objects.get(activo=True)
-                torneo_activo.activa = False
+                torneo_activo.activo = False
                 torneo_activo.save()
             except Torneo.DoesNotExist:
                 pass
@@ -120,6 +120,7 @@ class Torneo(models.Model):
 
         for equipo in equipos:
             self._cargar_equipo(equipo)
+        self.save()
 
     def cargar_fechas(self):
         for i in range(1, 20):
@@ -156,7 +157,6 @@ class Torneo(models.Model):
         nuevo_equipo.escudo.save(imagen_path, File(imagen_io))
         nuevo_equipo.save()
         self.equipos.add(nuevo_equipo)
-        self.save()
 
 
 class Pronostico(models.Model):
