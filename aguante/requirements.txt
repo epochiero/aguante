@@ -1,8 +1,9 @@
 Django==1.7.1
 Pillow==2.6.1
 celery==3.1.17
-djangorestframework==3.0.0
+djangorestframework==3.0.2
 django-grappelli==2.6.3
+paramiko==1.15.2
 psycopg2==2.5.4
 pyquery==1.2.9
 

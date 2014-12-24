@@ -55,6 +55,7 @@ target/
 
 # Local settings
 dev.py
+
 aguante/static
 aguante/media
-
+aguante/db.sqlite3
