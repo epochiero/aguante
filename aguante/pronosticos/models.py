@@ -1,15 +1,15 @@
 #-*- coding: utf-8 -*-
-from django.contrib.auth.models import User
-from django.core.files import File
-from django.db import models
-
-from io import BytesIO
 import logging
-from urllib.parse import urlparse
-from urllib.request import urlopen
 
 from common.models import EstadoPartido
 from crawlers.crawlers import UniversoFutbolCrawler
+from django.contrib.auth.models import User
+from django.core.files import File
+from django.db import models
+from io import BytesIO
+from urllib.parse import urlparse
+from urllib.request import urlopen
+
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,7 @@
+#-*- coding: utf-8 -*-
+from common.models import EstadoPartido
 from pyquery import PyQuery as pq
 from urllib.parse import urljoin
-
-from common.models import EstadoPartido
 
 __all__ = ['UniversoFutbolCrawler']
 
