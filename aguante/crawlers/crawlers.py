@@ -20,41 +20,41 @@ class UniversoFutbolCrawler():
         target_url = self.BASE_URL.format(camp=self.camp_id, fecha=nro_fecha)
         html = pq(target_url)
 
-        # td.equipoizquierda matchea el equipo local y el resultado
-        # de cada partido de la siguiente forma (empezando con n=0):
-        # -Local: td_izq[n]
-        # -Resultado: td_izq[n+1]
-        td_izq = [pq(elem) for elem in html('td.equipoizquierda')]
+        # los <tr> correspondientes a un partido tienen por lo menos un
+        # td.equipoizquierda como hijo
+        # no puede usarse set() porque las instancias de PyQuery no son
+        # hashables (ej. pq(elem))
+        filas_partido = []
+        for elem in html('td.equipoizquierda'):
+            fila = pq(elem).parent()[0]
+            if fila not in filas_partido:
+                filas_partido.append(fila)
 
-        # td.equipoderecha matchea el equipo visitante de cada partido
-        td_der = [pq(elem) for elem in html('td.equipoderecha')]
-
-        # Los partidos aún no empezados no tienen un td.equipoizquierda
-        # con el resultado. Eso nos sirve para calcular la cantidad
-        # de partidos en juego o terminados.
-        partidos_empezados = len(td_izq) - 10
         resultados = []
-
-        # Primero, los partidos que tienen resultado
-        for x in range(partidos_empezados):
-            goles_local, goles_visitante = map(
-                int, td_izq[x * 2 + 1].text().split('-'))
-            resultados.append({'equipo_local': td_izq[x * 2].text(),
-                               'equipo_visitante': td_der[x].text(),
-                               'goles_local': goles_local,
-                               'goles_visitante': goles_visitante,
-                               'estado': self._get_estado_partido(td_izq[x * 2 + 1])})
-
-        # Después, los que no
-        for x in range(partidos_empezados, 10):
-            indice_izq = x + partidos_empezados
-            resultados.append({'equipo_local': td_izq[indice_izq].text(),
-                               'equipo_visitante': td_der[x].text(),
-                               'goles_local': 0,
-                               'goles_visitante': 0,
-                               'estado': EstadoPartido.NO_EMPEZADO})
+        for fila_partido in filas_partido:
+            resultados.append(self._procesar_partido(fila_partido))
 
         return resultados
+
+    def _procesar_partido(self, fila_partido):
+        td_izq = pq(fila_partido)('td.equipoizquierda')
+        td_der = pq(fila_partido)('td.equipoderecha')
+        if len(td_izq) == 2:
+            # El partido está empezado o terminado
+            goles_local, goles_visitante = map(
+                int, pq(td_izq[1]).text().split('-'))
+            return {'equipo_local': pq(td_izq[0]).text(),
+                    'equipo_visitante': pq(td_der[0]).text(),
+                    'goles_local': goles_local,
+                    'goles_visitante': goles_visitante,
+                    'estado': self._get_estado_partido(pq(td_izq[1]))}
+        else:
+            # El partido aún no empezó
+            return {'equipo_local': pq(td_izq[0]).text(),
+                    'equipo_visitante': pq(td_der[0]).text(),
+                    'goles_local': 0,
+                    'goles_visitante': 0,
+                    'estado': EstadoPartido.NO_EMPEZADO}
 
     def _get_estado_partido(self, elem):
         ''' Usa la url de la imagen para determinar el estado del partido. '''
@@ -69,7 +69,13 @@ class UniversoFutbolCrawler():
         target_url = self.EQUIPOS_URL.format(camp=self.camp_id)
         html = pq(target_url)
         tabla_equipos = html('td[colspan="20"]').parent().parent()
-        lista_equipos = pq(tabla_equipos('tr')[1]).contents()
+        if not tabla_equipos:
+            # Hack para manejar el Torneo de los 30 (id=945)
+            tabla_equipos = html('td[colspan="30"]').parent().parent()
+            lista_equipos = pq(tabla_equipos('tr')[1]).contents()
+            lista_equipos.extend(pq(tabla_equipos('tr')[2]).contents())
+        else:
+            lista_equipos = pq(tabla_equipos('tr')[1]).contents()
         escudos = [pq(elem)('a')('img') for elem in lista_equipos]
 
         return [{'nombre': equipo.attr('alt'),

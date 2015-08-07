@@ -79,7 +79,7 @@ class Fecha(models.Model):
         return super().save(*args, **kwargs)
 
     def get_partidos(self):
-        #TODO: crear tasks para actualizar la data periodicamente
+        # TODO: crear tasks para actualizar la data periodicamente
         self.crawler = UniversoFutbolCrawler(self.torneo.universofutbol_id)
         partidos = self.crawler.get_fecha(self.numero)
 
@@ -96,7 +96,8 @@ class Torneo(models.Model):
     activo = models.BooleanField(default=False)
     universofutbol_id = models.PositiveIntegerField(unique=True)
     equipos = models.ManyToManyField(
-        'Equipo', related_name='torneos', blank=True, null=True)
+        'Equipo', related_name='torneos', blank=True)
+    equipos_cargados = models.BooleanField(default=False)
 
     def __str__(self):
         return self.nombre
@@ -115,11 +116,15 @@ class Torneo(models.Model):
     def cargar_equipos(self):
         """ Usa el crawler para buscar nombres y escudos
         de los equipos del torneo. """
+        if self.equipos_cargados:
+            logger.info("Los equipos ya han sido cargados para este torneo.")
+            return
         crawler = UniversoFutbolCrawler(self.universofutbol_id)
         equipos = crawler.get_equipos()
 
         for equipo in equipos:
             self._cargar_equipo(equipo)
+        self.equipos_cargados = True
         self.save()
 
     def cargar_fechas(self):
@@ -147,15 +152,15 @@ class Torneo(models.Model):
         logger.info("Cargando equipo para {torneo}: {equipo}".format(
             torneo=self.nombre, equipo=equipo['nombre']))
 
-        # Obtener imagen del escudo
-        escudo_url = equipo['escudo_url']
-        imagen = urlopen(escudo_url)
-        imagen_io = BytesIO(imagen.read())
-        imagen_path = urlparse(escudo_url).path.split('/')[-1]
-
-        nuevo_equipo = Equipo(nombre=equipo['nombre'])
-        nuevo_equipo.escudo.save(imagen_path, File(imagen_io))
-        nuevo_equipo.save()
+        nuevo_equipo, created = Equipo.objects.get_or_create(nombre=equipo['nombre'])
+        if created:
+            # Obtener imagen del escudo
+            escudo_url = equipo['escudo_url']
+            imagen = urlopen(escudo_url)
+            imagen_io = BytesIO(imagen.read())
+            imagen_path = urlparse(escudo_url).path.split('/')[-1]
+            nuevo_equipo.escudo.save(imagen_path, File(imagen_io))
+            nuevo_equipo.save()
         self.equipos.add(nuevo_equipo)
 
 
