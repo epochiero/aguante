@@ -4,7 +4,7 @@ BASE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..')
 # Application definition
 INSTALLED_APPS = (
     'frontend',
-    'pronosticos',
+    'futbol',
 
     # Third-party
     'grappelli',
@@ -106,7 +106,7 @@ LOGGING = {
             'handlers': ['console', ],
             'level': 'DEBUG'
         },
-        'pronosticos': {
+        'futbol': {
             'handlers': ['console', ],
             'level': 'DEBUG'
         },

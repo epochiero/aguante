@@ -162,15 +162,3 @@ class Torneo(models.Model):
             nuevo_equipo.escudo.save(imagen_path, File(imagen_io))
             nuevo_equipo.save()
         self.equipos.add(nuevo_equipo)
-
-
-class Pronostico(models.Model):
-
-    """ Modelo para un pronóstico de un partido. """
-    user = models.ForeignKey(User, related_name='pronosticos')
-    partido = models.ForeignKey('Partido')
-    goles_local = models.IntegerField(blank=True, null=True)
-    goles_visitante = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        unique_together = ('user', 'partido')

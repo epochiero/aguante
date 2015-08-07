@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate
 from django.views.generic import TemplateView
 from django.views.generic.base import View
 
-from pronosticos.models import Equipo, Fecha, Torneo
+from futbol.models import Equipo, Fecha, Torneo
 
 
 class IndexView(TemplateView):

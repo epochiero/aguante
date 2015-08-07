@@ -4,7 +4,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from rest_framework import routers
 
-from pronosticos.views import EquipoViewSet
+from futbol.views import EquipoViewSet
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()

@@ -1,4 +1,4 @@
-from .models import Equipo, Fecha, Partido, Pronostico, Torneo
+from .models import Equipo, Fecha, Partido, Torneo
 from rest_framework import serializers
 
 
@@ -20,13 +20,6 @@ class PartidoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Partido
-        #fields = ('nombre', 'escudo')
-
-
-class PronosticoSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Pronostico
         #fields = ('nombre', 'escudo')
 
 
