@@ -42,3 +42,16 @@ class TestEquipos(TestCase):
 
         self.torneo_30.cargar_fechas()
         self.assertEqual(self.torneo_30.fechas.count(), 30)
+
+    def test_torneo_activo(self):
+        torneo_activo = Torneo.get_activo()
+        # Por defecto, un torneo no está activo
+        self.assertIsNone(torneo_activo)
+
+        self.torneo_20.activo = True
+        self.torneo_20.save()
+        self.assertEqual(Torneo.get_activo(), self.torneo_20)
+        self.torneo_30.activo = True
+        self.torneo_30.save()
+        self.assertEqual(Torneo.get_activo(), self.torneo_30)
+        self.assertNotEqual(Torneo.get_activo(), self.torneo_20)
