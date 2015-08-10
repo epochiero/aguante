@@ -1,3 +1,7 @@
+import shutil
+import tempfile
+
+from django.conf import settings
 from django.test import TestCase
 from futbol.models import *
 
@@ -10,6 +14,12 @@ class TestEquipos(TestCase):
             nombre="Torneo Transicion 2014", universofutbol_id="896")
         self.torneo_30 = Torneo.objects.create(
             nombre="Torneo 2015", universofutbol_id="945")
+
+        # Usar un MEDIA_ROOT temporal para probar
+        # la carga de escudos, entre otros
+        settings._original_media_root = settings.MEDIA_ROOT
+        self._temp_media_root = tempfile.mkdtemp()
+        settings.MEDIA_ROOT = self._temp_media_root
 
     def test_cargar_equipos(self):
         self.torneo_20.cargar_equipos()
@@ -71,3 +81,9 @@ class TestEquipos(TestCase):
         fecha_2.save()
         self.assertEqual(self.torneo_20.get_fecha_activa(), fecha_2)
         self.assertNotEqual(self.torneo_20.get_fecha_activa(), fecha_1)
+
+    def tearDown(self):
+        # Borrar el MEDIA_ROOT temporal
+        shutil.rmtree(self._temp_media_root, ignore_errors=True)
+        settings.MEDIA_ROOT = settings._original_media_root
+        del settings._original_media_root
