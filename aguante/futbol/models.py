@@ -1,8 +1,10 @@
 #-*- coding: utf-8 -*-
 import logging
+import os
 
 from common.models import EstadoPartido
 from crawlers.crawlers import UniversoFutbolCrawler
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.db import models
@@ -16,10 +18,12 @@ logger = logging.getLogger(__name__)
 
 class Equipo(models.Model):
 
+    EQUIPOS_ESCUDOS_PATH = 'equipos'
+
     """ Modelo para los equipos. """
     nombre = models.CharField(max_length=50)
     escudo = models.ImageField(
-        upload_to='equipos', blank=True, null=True)
+        upload_to=EQUIPOS_ESCUDOS_PATH, blank=True, null=True)
 
     def __str__(self):
         return self.nombre
@@ -163,9 +167,10 @@ class Torneo(models.Model):
         if created:
             # Obtener imagen del escudo
             escudo_url = equipo['escudo_url']
-            imagen = urlopen(escudo_url)
-            imagen_io = BytesIO(imagen.read())
             imagen_path = urlparse(escudo_url).path.split('/')[-1]
-            nuevo_equipo.escudo.save(imagen_path, File(imagen_io))
+            if not os.path.exists(os.path.join(settings.MEDIA_ROOT, Equipo.EQUIPOS_ESCUDOS_PATH, imagen_path)):
+                imagen = urlopen(escudo_url)
+                imagen_io = BytesIO(imagen.read())
+                nuevo_equipo.escudo.save(imagen_path, File(imagen_io))
             nuevo_equipo.save()
         self.equipos.add(nuevo_equipo)
