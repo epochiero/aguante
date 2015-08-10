@@ -98,6 +98,7 @@ class Torneo(models.Model):
     equipos = models.ManyToManyField(
         'Equipo', related_name='torneos', blank=True)
     equipos_cargados = models.BooleanField(default=False)
+    cantidad_fechas = models.PositiveIntegerField(null=True)
 
     def __str__(self):
         return self.nombre
