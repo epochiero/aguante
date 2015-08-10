@@ -10,14 +10,14 @@ class UniversoFutbolCrawler():
 
     """ Recupera resultados y equipos para un torneo. """
 
-    BASE_URL = "http://www.universofutbol.com/plantillas/archivos/fecha_argentina.php?div=1&camp={camp}&fecha={fecha}"
-    EQUIPOS_URL = "http://www.universofutbol.com/plantillas/archivos/noticias.php?div=1&camp={camp}"
+    FECHA_URL = "http://www.universofutbol.com/plantillas/archivos/fecha_argentina.php?div=1&camp={camp}&fecha={fecha}"
+    TORNEO_URL = "http://www.universofutbol.com/plantillas/archivos/noticias.php?div=1&camp={camp}"
 
     def __init__(self, camp_id):
         self.camp_id = camp_id
 
     def get_fecha(self, nro_fecha):
-        target_url = self.BASE_URL.format(camp=self.camp_id, fecha=nro_fecha)
+        target_url = self.FECHA_URL.format(camp=self.camp_id, fecha=nro_fecha)
         html = pq(target_url)
 
         # los <tr> correspondientes a un partido tienen por lo menos un
@@ -66,7 +66,7 @@ class UniversoFutbolCrawler():
         return EstadoPartido.NO_EMPEZADO
 
     def get_equipos(self):
-        target_url = self.EQUIPOS_URL.format(camp=self.camp_id)
+        target_url = self.TORNEO_URL.format(camp=self.camp_id)
         html = pq(target_url)
         tabla_equipos = html('td[colspan="20"]').parent().parent()
         if not tabla_equipos:
@@ -79,5 +79,13 @@ class UniversoFutbolCrawler():
         escudos = [pq(elem)('a')('img') for elem in lista_equipos]
 
         return [{'nombre': equipo.attr('alt'),
-                 'escudo_url': urljoin(self.EQUIPOS_URL, equipo.attr('src'))}
+                 'escudo_url': urljoin(self.TORNEO_URL, equipo.attr('src'))}
                 for equipo in escudos]
+
+    def get_cantidad_fechas(self):
+        target_url = self.TORNEO_URL.format(camp=self.camp_id)
+        html = pq(target_url)
+        tabla_fechas = html("p:contains('Fecha x Fecha')").parent()
+        # Cada <td> es una fecha
+        td_fechas = pq(tabla_fechas)('td')
+        return len(td_fechas)

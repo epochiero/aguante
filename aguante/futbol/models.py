@@ -129,7 +129,12 @@ class Torneo(models.Model):
         self.save()
 
     def cargar_fechas(self):
-        for i in range(1, 20):
+        if not self.cantidad_fechas:
+            crawler = UniversoFutbolCrawler(self.universofutbol_id)
+            self.cantidad_fechas = crawler.get_cantidad_fechas()
+            self.save()
+
+        for i in range(1, self.cantidad_fechas + 1):
             if not Fecha.objects.filter(numero=i, torneo=self).exists():
                 fecha = Fecha(numero=i, torneo=self)
                 fecha.save()
@@ -153,7 +158,8 @@ class Torneo(models.Model):
         logger.info("Cargando equipo para {torneo}: {equipo}".format(
             torneo=self.nombre, equipo=equipo['nombre']))
 
-        nuevo_equipo, created = Equipo.objects.get_or_create(nombre=equipo['nombre'])
+        nuevo_equipo, created = Equipo.objects.get_or_create(
+            nombre=equipo['nombre'])
         if created:
             # Obtener imagen del escudo
             escudo_url = equipo['escudo_url']
