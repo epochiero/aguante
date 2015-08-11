@@ -1,6 +1,7 @@
 # .coveragerc to control coverage.py
 [run]
 include=crawlers/*, futbol/*
+omit=futbol/admin.py
 
 [report]
 # Regexes for lines to exclude from consideration
