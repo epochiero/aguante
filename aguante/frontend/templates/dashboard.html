@@ -22,11 +22,11 @@
         </div>
       </div>
       <div class="inner cover">
-        <h1 class="cover-heading">Partidos fecha {{fecha}}</h1>
+        <h1 class="cover-heading">Partidos fecha {{fecha.numero}}</h1>
       </div>
     </div>
     <div class="partidos">
-      {% for partido in partidos %}
+      {% for partido in fecha.get_partidos %}
          {% if partido.estado == 1 %}<span style="color: green; font-weight:bold;">{% endif %}
         <p><img class="escudo" src="{% static partido.equipo_local.escudo.url %}"></img>{{ partido.equipo_local }} {{ partido.goles_local }} - {{ partido.goles_visitante }} {{ partido.equipo_visitante }}<img class="escudo" src="{% static partido.equipo_visitante.escudo.url %}"></p>
         {% if partido.estado == 1 %}</span>{% endif %}
