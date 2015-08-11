@@ -41,6 +41,23 @@ class TestEquipos(TestCase):
         self.assertTrue(self.torneo_30.equipos_cargados)
         self.assertEqual(self.torneo_30.equipos.count(), 30)
 
+        # escudos
+        for equipo in self.torneo_20.equipos.all():
+            self.assertNotEqual(equipo.escudo, None)
+        for equipo in self.torneo_30.equipos.all():
+            self.assertNotEqual(equipo.escudo, None)
+
+        # borrar equipos pero no los escudos en disco
+        Equipo.objects.all().delete()
+        self.torneo_20.equipos_cargados = False
+        self.torneo_30.equipos_cargados = False
+        self.torneo_20.cargar_equipos()
+        self.torneo_30.cargar_equipos()
+        for equipo in self.torneo_20.equipos.all():
+            self.assertNotEqual(equipo.escudo, None)
+        for equipo in self.torneo_30.equipos.all():
+            self.assertNotEqual(equipo.escudo, None)
+
     def test_torneo_activo(self):
         torneo_activo = Torneo.get_activo()
         # Por defecto, un torneo no está activo

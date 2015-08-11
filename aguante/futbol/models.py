@@ -168,9 +168,13 @@ class Torneo(models.Model):
             # Obtener imagen del escudo
             escudo_url = equipo['escudo_url']
             imagen_path = urlparse(escudo_url).path.split('/')[-1]
-            if not os.path.exists(os.path.join(settings.MEDIA_ROOT, Equipo.EQUIPOS_ESCUDOS_PATH, imagen_path)):
+            local_imagen_path = os.path.join(
+                settings.MEDIA_ROOT, Equipo.EQUIPOS_ESCUDOS_PATH, imagen_path)
+            if not os.path.exists(local_imagen_path):
                 imagen = urlopen(escudo_url)
                 imagen_io = BytesIO(imagen.read())
                 nuevo_equipo.escudo.save(imagen_path, File(imagen_io))
+            else:
+                nuevo_equipo.escudo = os.path.join(Equipo.EQUIPOS_ESCUDOS_PATH, imagen_path)
             nuevo_equipo.save()
         self.equipos.add(nuevo_equipo)
