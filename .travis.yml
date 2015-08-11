@@ -3,9 +3,11 @@ python:
 - '3.2'
 - '3.3'
 - '3.4'
-install: pip install -r aguante/requirements.txt
+install: pip install -r aguante/requirements.txt coveralls
 sudo: false
-script: cd aguante; python manage.py test --settings aguante.settings.test
+script: cd aguante; coverage run manage.py test --settings aguante.settings.test
+after_success:
+  coveralls
 env:
   global:
     secure: XlgQGGbaRORDO7jbUMhKL/td1U8KWTnKoTh52WHJYzGiq4qyVMDkQcxGV6o4e4rn55uJxa7OLdAFLusZDAOz/Z+K8IE5aDtVw1d+kbtnUDOm49YhvDD6aU1h76UP+6ppHvAPkXFb+mm+Zjor6rGtBP2BCbovfibLWF7y9ejsS4c=
