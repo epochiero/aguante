@@ -1,12 +1,11 @@
 language: python
 python:
-  - "3.2"
-  - "3.3"
-  - "3.4"
-  - "3.5.0b3"
-  - "3.5-dev"
-  - "nightly"
-# command to install dependencies
-install: "pip install -r aguante/requirements.txt"
-# command to run tests
-script: cd aguante; python manage.py test
+- '3.2'
+- '3.3'
+- '3.4'
+install: pip install -r aguante/requirements.txt
+sudo: false
+script: cd aguante; python manage.py test --settings aguante.settings.test
+env:
+  global:
+    secure: XlgQGGbaRORDO7jbUMhKL/td1U8KWTnKoTh52WHJYzGiq4qyVMDkQcxGV6o4e4rn55uJxa7OLdAFLusZDAOz/Z+K8IE5aDtVw1d+kbtnUDOm49YhvDD6aU1h76UP+6ppHvAPkXFb+mm+Zjor6rGtBP2BCbovfibLWF7y9ejsS4c=
