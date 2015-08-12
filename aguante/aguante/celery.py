@@ -1,18 +1,25 @@
 from __future__ import absolute_import
 
+from datetime import timedelta
 import os
 
 from celery import Celery
-
 from django.conf import settings
 
-# set the default Django settings module for the 'celery' program.
-#os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proj.settings')
 
-app = Celery('aguante')
-
-# Using a string here means the worker will not have to
-# pickle the object when using Windows.
+app = Celery('aguante', include=['aguante.tasks'])
 app.config_from_object('django.conf:settings')
-app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+app.conf.update(
+    CELERYBEAT_SCHEDULE={
+        'actualizar_partidos': {
+            'task': 'aguante.tasks.actualizar_partidos',
+            'schedule': timedelta(seconds=60),
+        },
+    })
+
+app.autodiscover_tasks(['aguante'])
+
+if __name__ == '__main__':
+    app.start()
+
 

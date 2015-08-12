@@ -36,6 +36,8 @@ class Partido(models.Model):
       no un pronóstico.
     - fecha se refiere a la fecha del torneo (1º, 2º, etc.)
     - timestamp es la fecha y hora del partido. """
+    class Meta:
+        unique_together = ('equipo_local', 'equipo_visitante', 'fecha')
 
     ESTADO_CHOICES = ((EstadoPartido.NO_EMPEZADO, 'No empezado'),
                       (EstadoPartido.EN_JUEGO, 'En juego'),
@@ -48,7 +50,7 @@ class Partido(models.Model):
         'Equipo', related_name='partidos_visitante')
     goles_visitante = models.IntegerField(blank=True, null=True)
     fecha = models.ForeignKey('Fecha', related_name='partidos')
-    timestamp = models.DateTimeField(blank=True, null=True)
+    timestamp = models.DateTimeField(blank=True, null=True, auto_now=True)
     estado = models.IntegerField(
         choices=ESTADO_CHOICES, default=EstadoPartido.NO_EMPEZADO)
 
@@ -82,8 +84,23 @@ class Fecha(models.Model):
                 pass
         return super().save(*args, **kwargs)
 
+    def actualizar_partidos(self, crawler):
+        data_partidos = crawler.get_fecha(self.numero)
+
+        for data_partido in data_partidos:
+            logger.info("Actualizando partido: {} - {}".format(
+                data_partido['equipo_local'], data_partido['equipo_visitante']))
+            partido, _ = self.partidos.get_or_create(
+                equipo_local=Equipo.objects.get(
+                    nombre=data_partido['equipo_local']),
+                equipo_visitante=Equipo.objects.get(
+                    nombre=data_partido['equipo_visitante']))
+            partido.goles_local = data_partido['goles_local']
+            partido.goles_visitante = data_partido['goles_visitante']
+            partido.estado = data_partido['estado']
+            partido.save()
+
     def get_partidos(self):
-        # TODO: crear tasks para actualizar la data periodicamente
         self.crawler = UniversoFutbolCrawler(self.torneo.universofutbol_id)
         partidos = self.crawler.get_fecha(self.numero)
 
@@ -175,6 +192,7 @@ class Torneo(models.Model):
                 imagen_io = BytesIO(imagen.read())
                 nuevo_equipo.escudo.save(imagen_path, File(imagen_io))
             else:
-                nuevo_equipo.escudo = os.path.join(Equipo.EQUIPOS_ESCUDOS_PATH, imagen_path)
+                nuevo_equipo.escudo = os.path.join(
+                    Equipo.EQUIPOS_ESCUDOS_PATH, imagen_path)
             nuevo_equipo.save()
         self.equipos.add(nuevo_equipo)
