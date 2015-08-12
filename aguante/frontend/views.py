@@ -29,8 +29,10 @@ class DashboardView(TemplateView):
         nro_fecha = self.kwargs.get('fecha', None)
         context = super().get_context_data(**kwargs)
         torneo = Torneo.get_activo()
+        context['torneo'] = torneo
         if not nro_fecha:
             context['fecha'] = torneo.get_fecha_activa()
         else:
             context['fecha'] = torneo.fechas.get(numero=nro_fecha)
+        context['torneos'] = Torneo.objects.all()
         return context

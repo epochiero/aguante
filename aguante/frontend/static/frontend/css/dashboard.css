@@ -1,0 +1,59 @@
+/* Dashboard menu */
+#li-torneo-activo {
+	color: darkgray;
+	font-weight: bold;
+}
+
+#li-fecha-activa {
+	color: darkgray;
+	font-weight: bold;
+	font-size: large;
+}
+
+/* Main page */
+.escudo {
+	height: 100px;
+}
+
+.icono-estado {
+	display: inline-block;
+	vertical-align: middle;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+}
+
+.icono-estado-enjuego {
+	background: green;
+	border: 1px solid darkgreen;
+	animation-duration: 1s;
+    animation-name: partido-activo;
+    animation-iteration-count: infinite;
+}
+
+.icono-estado-noempezado {
+	background: orange;
+	border: 1px solid darkorange;
+}	
+
+.icono-estado-terminado {
+	background: blue;
+	border: 1px solid darkblue;
+}
+
+.descripcion-estado {
+	display: inline-block;
+	vertical-align: initial;
+	margin-left: 5px;
+}
+
+.row-estado {
+	margin-top: 5px;
+}
+
+/* Animations */
+@keyframes partido-activo {
+	from { background: green; }
+	50% { background: white; }
+	to { background: green; }
+}
