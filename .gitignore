@@ -53,6 +53,9 @@ docs/_build/
 # PyBuilder
 target/
 
+# Celery
+celerybeat-schedule
+
 # Local settings
 dev.py
 
