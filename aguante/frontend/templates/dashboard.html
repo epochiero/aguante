@@ -162,7 +162,7 @@
                                 <ul id="ul_fechas{{ torneo.id }}" class="collapse">
                                 {% for fecha in torneo.fechas.all %}
                                     <li>
-                                        <a href="#" {% if fecha.activa %}id="li-fecha-activa"{% endif %}><i class="fa fa-calendar-o"></i> Fecha {{ fecha.numero }}</a>
+                                        <a href="{% url 'dashboard' torneo.id fecha.numero %}" {% if fecha.activa %}id="li-fecha-activa"{% endif %}><i class="fa fa-calendar-o"></i> Fecha {{ fecha.numero }}</a>
                                     </li>
                                 {% endfor %}
                                 </ul>
