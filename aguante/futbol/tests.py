@@ -4,7 +4,7 @@ import tempfile
 from django.conf import settings
 from django.test import TestCase
 from futbol.models import *
-
+from crawlers.crawlers import UniversoFutbolCrawler
 
 class TestEquipos(TestCase):
 
@@ -124,11 +124,12 @@ class TestFechas(TestCase):
     def test_get_partidos_fecha(self):
         self.torneo_20.cargar_equipos()
         fecha_1 = self.torneo_20.fechas.get(numero=1)
-        partidos = fecha_1.get_partidos()
+        fecha_1.actualizar_partidos(UniversoFutbolCrawler(self.torneo_20.universofutbol_id))
+        partidos = fecha_1.partidos.all()
         equipos_partidos = []
         equipos_partidos.extend(
-            [partido['equipo_local'] for partido in partidos])
+            [partido.equipo_local for partido in partidos])
         equipos_partidos.extend(
-            [partido['equipo_visitante'] for partido in partidos])
+            [partido.equipo_visitante for partido in partidos])
         for equipo in self.torneo_20.equipos.all():
             self.assertIn(equipo, equipos_partidos)
