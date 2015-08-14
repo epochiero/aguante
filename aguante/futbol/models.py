@@ -49,7 +49,7 @@ class Partido(models.Model):
     equipo_visitante = models.ForeignKey(
         'Equipo', related_name='partidos_visitante')
     goles_visitante = models.IntegerField(blank=True, null=True)
-    fecha = models.ForeignKey('Fecha', related_name='partidos')
+    fecha = models.ForeignKey('Fecha', related_name='partidos_fecha')
     timestamp = models.DateTimeField(blank=True, null=True, auto_now=True)
     estado = models.IntegerField(
         choices=ESTADO_CHOICES, default=EstadoPartido.NO_EMPEZADO)
@@ -90,7 +90,7 @@ class Fecha(models.Model):
         for data_partido in data_partidos:
             logger.info("Actualizando partido: {} - {}".format(
                 data_partido['equipo_local'], data_partido['equipo_visitante']))
-            partido, _ = self.partidos.get_or_create(
+            partido, _ = self.partidos_fecha.get_or_create(
                 equipo_local=Equipo.objects.get(
                     nombre=data_partido['equipo_local']),
                 equipo_visitante=Equipo.objects.get(
@@ -99,6 +99,13 @@ class Fecha(models.Model):
             partido.goles_visitante = data_partido['goles_visitante']
             partido.estado = data_partido['estado']
             partido.save()
+
+    @property
+    def partidos(self):
+        if not self.partidos_fecha.count():
+            self.actualizar_partidos(
+                UniversoFutbolCrawler(self.torneo.universofutbol_id))
+        return self.partidos_fecha.all()
 
 
 class Torneo(models.Model):
