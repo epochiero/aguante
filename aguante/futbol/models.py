@@ -100,15 +100,6 @@ class Fecha(models.Model):
             partido.estado = data_partido['estado']
             partido.save()
 
-    def get_partidos(self):
-        self.crawler = UniversoFutbolCrawler(self.torneo.universofutbol_id)
-        partidos = self.crawler.get_fecha(self.numero)
-
-        for partido in partidos:
-            partido.update({'equipo_local': Equipo.objects.get(nombre=partido['equipo_local']),
-                            'equipo_visitante': Equipo.objects.get(nombre=partido['equipo_visitante'])})
-        return partidos
-
 
 class Torneo(models.Model):
 

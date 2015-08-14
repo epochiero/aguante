@@ -9,18 +9,18 @@ register = template.Library()
 def icono_estado(partido):
     """Devuelve un <div> con el icono de estado del partido"""
     estado = "terminado"
-    if partido['estado'] == EstadoPartido.NO_EMPEZADO:
+    if partido.estado == EstadoPartido.NO_EMPEZADO:
         estado = "noempezado"
-    elif partido['estado'] == EstadoPartido.EN_JUEGO:
+    elif partido.estado == EstadoPartido.EN_JUEGO:
         estado = "enjuego"
-    return mark_safe('<div class="icono-estado icono-estado-{estado}"></div>'.format(estado=estado))
+    return mark_safe('<div class="icono-estado icono-estado-{}"></div>'.format(estado))
 
 @register.filter()
 def descripcion(partido):
     """Devuelve un <div> con la descripción estado del partido"""
     estado = "Terminado"
-    if partido['estado'] == EstadoPartido.NO_EMPEZADO:
+    if partido.estado == EstadoPartido.NO_EMPEZADO:
         estado = "No empezado"
-    elif partido['estado'] == EstadoPartido.EN_JUEGO:
+    elif partido.estado == EstadoPartido.EN_JUEGO:
         estado = "En juego"
     return estado
