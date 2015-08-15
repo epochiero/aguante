@@ -100,6 +100,10 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
+        'logfile': {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': 'aguante.log'
+        },
     },
     'loggers': {
         'frontend': {
@@ -109,6 +113,11 @@ LOGGING = {
         'futbol': {
             'handlers': ['console', ],
             'level': 'DEBUG'
+        },
+        'django': {
+            'handlers': ['logfile'],
+            'level': 'ERROR',
+            'propagate': False,
         },
     }
 }
