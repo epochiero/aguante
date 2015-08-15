@@ -3,6 +3,6 @@ Pillow
 celery
 djangorestframework
 django-grappelli
+gunicorn
 paramiko
 pyquery
-
