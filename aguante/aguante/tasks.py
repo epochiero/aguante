@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from aguante.celery import app
+from aguante.celeryconfig import app
 from celery.utils.log import get_task_logger
 from crawlers.crawlers import UniversoFutbolCrawler
 from futbol.models import Torneo
