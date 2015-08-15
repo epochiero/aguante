@@ -52,7 +52,7 @@ WSGI_APPLICATION = 'aguante.wsgi.application'
 # Internationalization
 LANGUAGE_CODE = 'es-AR'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Argentina/Buenos_Aires'
 
 USE_I18N = True
 
