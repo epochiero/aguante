@@ -22,7 +22,7 @@ def actualizar_partidos():
     fecha_activa = torneo_activo.get_fecha_activa()
     if not fecha_activa:
         logger.info("No hay ninguna fecha marcada como activa para el torneo {}"
-                    .format(id_torneo=torneo_activo.id))
+                    .format(torneo_activo.id))
         return
     crawler = UniversoFutbolCrawler(
         torneo_activo.universofutbol_id)
