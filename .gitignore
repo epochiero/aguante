@@ -59,6 +59,6 @@ celerybeat-schedule
 # Local settings
 dev.py
 
-aguante/static
-aguante/media
-aguante/db.sqlite3
+static
+media
+db.sqlite3
