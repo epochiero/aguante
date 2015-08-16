@@ -3,9 +3,9 @@ python:
 - '3.2'
 - '3.3'
 - '3.4'
-install: pip install -r aguante/requirements.txt coveralls
+install: pip install -r requirements.txt coveralls
 sudo: false
-script: cd aguante; coverage run manage.py test --settings aguante.settings.test
+script: coverage run manage.py test --settings aguante.settings.test
 after_success:
   coveralls
 env:
