@@ -59,6 +59,14 @@ class Partido(models.Model):
                                                           visitante=self.equipo_visitante.nombre,
                                                           torneo=self.fecha.torneo.nombre)
 
+    @property
+    def texto_estado(self):
+        if self.estado == EstadoPartido.NO_EMPEZADO:
+            return "No empezado"
+        elif self.estado == EstadoPartido.EN_JUEGO:
+            return "En juego"
+        return "Terminado"
+
 
 class Fecha(models.Model):
 
