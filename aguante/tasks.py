@@ -24,10 +24,6 @@ def actualizar_partidos():
         logger.info("No hay ninguna fecha marcada como activa para el torneo {}"
                     .format(torneo_activo.id))
         return
-    crawler = UniversoFutbolCrawler(
-        torneo_activo.universofutbol_id)
 
-    # TODO: no seguir si ya terminaron todos los partidos
-    logger.info("Actualizando partidos, fecha {} {}".format(
-        fecha_activa.numero, torneo_activo.nombre))
-    fecha_activa.actualizar_partidos(crawler)
+    logger.info("Actualizando partidos, {}".format(fecha_activa))
+    fecha_activa.actualizar_partidos()

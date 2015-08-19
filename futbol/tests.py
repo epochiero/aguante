@@ -124,7 +124,7 @@ class TestFechas(TestCase):
     def test_get_partidos_fecha(self):
         self.torneo_20.cargar_equipos()
         fecha_1 = self.torneo_20.fechas.get(numero=1)
-        fecha_1.actualizar_partidos(UniversoFutbolCrawler(self.torneo_20.universofutbol_id))
+        fecha_1.actualizar_partidos()
         partidos = fecha_1.partidos.all()
         equipos_partidos = []
         equipos_partidos.extend(

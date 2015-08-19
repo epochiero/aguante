@@ -92,27 +92,46 @@ class Fecha(models.Model):
                 pass
         return super().save(*args, **kwargs)
 
-    def actualizar_partidos(self, crawler):
-        data_partidos = crawler.get_fecha(self.numero)
+    def _get_data_partidos(self):
+        # TODO: no instanciar en cada llamada
+        crawler = UniversoFutbolCrawler(self.torneo.universofutbol_id)
+        return crawler.get_fecha(self.numero)
 
-        for data_partido in data_partidos:
-            logger.info("Actualizando partido: {} - {}".format(
-                data_partido['equipo_local'], data_partido['equipo_visitante']))
-            partido, _ = self.partidos_fecha.get_or_create(
-                equipo_local=Equipo.objects.get(
-                    nombre=data_partido['equipo_local']),
-                equipo_visitante=Equipo.objects.get(
-                    nombre=data_partido['equipo_visitante']))
-            partido.goles_local = data_partido['goles_local']
-            partido.goles_visitante = data_partido['goles_visitante']
-            partido.estado = data_partido['estado']
-            partido.save()
+    def actualizar_partidos(self):
+        data_partidos = self._get_data_partidos()
+
+        # Si todos los partidos están terminados, marcar
+        # la fecha siguiente como activa
+        if set(data_partido['estado'] for data_partido in data_partidos) ==\
+            set([EstadoPartido.TERMINADO]) and self.activa:
+                try:
+                    proxima_fecha = self.torneo.fechas.get(
+                        numero=self.numero + 1)
+                    proxima_fecha.activa = True
+                    proxima_fecha.save()
+                    logger.info("La nueva fecha activa es: {}".format(proxima_fecha))
+                except Fecha.DoesNotExist:
+                    # Es la última fecha
+                    self.activa = False
+                    self.save()
+        else:
+            for data_partido in data_partidos:
+                logger.info("Actualizando partido: {} - {}".format(
+                    data_partido['equipo_local'], data_partido['equipo_visitante']))
+                partido, _ = self.partidos_fecha.get_or_create(
+                    equipo_local=Equipo.objects.get(
+                        nombre=data_partido['equipo_local']),
+                    equipo_visitante=Equipo.objects.get(
+                        nombre=data_partido['equipo_visitante']))
+                partido.goles_local = data_partido['goles_local']
+                partido.goles_visitante = data_partido['goles_visitante']
+                partido.estado = data_partido['estado']
+                partido.save()
 
     @property
     def partidos(self):
         if not self.partidos_fecha.count():
-            self.actualizar_partidos(
-                UniversoFutbolCrawler(self.torneo.universofutbol_id))
+            self.actualizar_partidos()
         return self.partidos_fecha.all()
 
 
@@ -133,7 +152,8 @@ class Torneo(models.Model):
     def save(self, *args, **kwargs):
         if self.activo:
             try:
-                # Marcar como inactivo el torneo anterior (si es que lo está)
+                    # Marcar como inactivo el torneo anterior (si es que lo
+                    # está)
                 torneo_activo = Torneo.objects.get(activo=True)
                 torneo_activo.activo = False
                 torneo_activo.save()
