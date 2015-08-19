@@ -76,12 +76,13 @@ def sudo(cmd, user=None):
 
 def deploy(env):
     task = Task(env)
-    with task.cd('/home/aguante/aguante/aguante'):
+    with task.cd('/home/aguante/aguante'):
         task.execute('git pull')
         with task.activate_virtualenv('aguante'):
             task.execute('pip install --upgrade -r requirements.txt')
             task.execute('python manage.py migrate')
             task.execute('python manage.py collectstatic --noinput')
+            task.execute('kill -HUP `cat gunicorn.pid`')
 
 
 def get_sytem_packages():
