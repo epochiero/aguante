@@ -103,17 +103,18 @@ class Fecha(models.Model):
         # Si todos los partidos están terminados, marcar
         # la fecha siguiente como activa
         if set(data_partido['estado'] for data_partido in data_partidos) ==\
-            set([EstadoPartido.TERMINADO]) and self.activa:
-                try:
-                    proxima_fecha = self.torneo.fechas.get(
-                        numero=self.numero + 1)
-                    proxima_fecha.activa = True
-                    proxima_fecha.save()
-                    logger.info("La nueva fecha activa es: {}".format(proxima_fecha))
-                except Fecha.DoesNotExist:
-                    # Es la última fecha
-                    self.activa = False
-                    self.save()
+                set([EstadoPartido.TERMINADO]) and self.activa:
+            try:
+                proxima_fecha = self.torneo.fechas.get(
+                    numero=self.numero + 1)
+                proxima_fecha.activa = True
+                proxima_fecha.save()
+                logger.info(
+                    "La nueva fecha activa es: {}".format(proxima_fecha))
+            except Fecha.DoesNotExist:
+                # Es la última fecha
+                self.activa = False
+                self.save()
         else:
             for data_partido in data_partidos:
                 logger.info("Actualizando partido: {} - {}".format(
@@ -132,7 +133,7 @@ class Fecha(models.Model):
     def partidos(self):
         if not self.partidos_fecha.count():
             self.actualizar_partidos()
-        return self.partidos_fecha.all()
+        return self.partidos_fecha.order_by('-estado')
 
 
 class Torneo(models.Model):
@@ -152,8 +153,8 @@ class Torneo(models.Model):
     def save(self, *args, **kwargs):
         if self.activo:
             try:
-                    # Marcar como inactivo el torneo anterior (si es que lo
-                    # está)
+                # Marcar como inactivo el torneo anterior (si es que lo
+                # está)
                 torneo_activo = Torneo.objects.get(activo=True)
                 torneo_activo.activo = False
                 torneo_activo.save()
