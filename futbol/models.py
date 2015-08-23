@@ -8,10 +8,10 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.db import models
+from django.utils import timezone
 from io import BytesIO
 from urllib.parse import urlparse
 from urllib.request import urlopen
-
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,8 @@ class Partido(models.Model):
         'Equipo', related_name='partidos_visitante')
     goles_visitante = models.IntegerField(blank=True, null=True)
     fecha = models.ForeignKey('Fecha', related_name='partidos_fecha')
-    timestamp = models.DateTimeField(blank=True, null=True, auto_now=True)
+    timestamp = models.DateTimeField(
+        blank=True, null=True, default=timezone.now)
     estado = models.IntegerField(
         choices=ESTADO_CHOICES, default=EstadoPartido.NO_EMPEZADO)
 
@@ -77,6 +78,8 @@ class Fecha(models.Model):
     numero = models.PositiveIntegerField()
     torneo = models.ForeignKey('Torneo', related_name='fechas')
     activa = models.BooleanField(default=False)
+    terminada = models.BooleanField(default=False)
+    ultima_actualizacion = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return "Fecha {nro} {torneo}".format(nro=self.numero, torneo=self.torneo.nombre)
@@ -98,40 +101,47 @@ class Fecha(models.Model):
         return crawler.get_fecha(self.numero)
 
     def actualizar_partidos(self):
+        if self.terminada:
+            return
+
         data_partidos = self._get_data_partidos()
+        for data_partido in data_partidos:
+            logger.info("Actualizando partido: {} - {}".format(
+                data_partido['equipo_local'], data_partido['equipo_visitante']))
+            partido, _ = self.partidos_fecha.get_or_create(
+                equipo_local=Equipo.objects.get(
+                    nombre=data_partido['equipo_local']),
+                equipo_visitante=Equipo.objects.get(
+                    nombre=data_partido['equipo_visitante']))
+            partido.goles_local = data_partido['goles_local']
+            partido.goles_visitante = data_partido['goles_visitante']
+            partido.estado = data_partido['estado']
+            partido.save()
 
         # Si todos los partidos están terminados, marcar
         # la fecha siguiente como activa
         if set(data_partido['estado'] for data_partido in data_partidos) ==\
-                set([EstadoPartido.TERMINADO]) and self.activa:
-            try:
-                proxima_fecha = self.torneo.fechas.get(
-                    numero=self.numero + 1)
-                proxima_fecha.activa = True
-                proxima_fecha.save()
-                logger.info(
-                    "La nueva fecha activa es: {}".format(proxima_fecha))
-            except Fecha.DoesNotExist:
-                # Es la última fecha
-                self.activa = False
-                self.save()
-        else:
-            for data_partido in data_partidos:
-                logger.info("Actualizando partido: {} - {}".format(
-                    data_partido['equipo_local'], data_partido['equipo_visitante']))
-                partido, _ = self.partidos_fecha.get_or_create(
-                    equipo_local=Equipo.objects.get(
-                        nombre=data_partido['equipo_local']),
-                    equipo_visitante=Equipo.objects.get(
-                        nombre=data_partido['equipo_visitante']))
-                partido.goles_local = data_partido['goles_local']
-                partido.goles_visitante = data_partido['goles_visitante']
-                partido.estado = data_partido['estado']
-                partido.save()
+                set([EstadoPartido.TERMINADO]):
+            if self.activa:
+                try:
+                    proxima_fecha = self.torneo.fechas.get(
+                        numero=self.numero + 1)
+                    proxima_fecha.activa = True
+                    proxima_fecha.save()
+                    logger.info(
+                        "La nueva fecha activa es: {}".format(proxima_fecha))
+                except Fecha.DoesNotExist:
+                    # Es la última fecha
+                    self.activa = False
+            self.terminada = True
+            self.save()
 
     @property
     def partidos(self):
-        if not self.partidos_fecha.count():
+        # Si una fecha no está activa y tampoco está terminada,
+        # hay un o más partidos postergados / suspendidos.
+        # Hay que actualizar manualmente
+        if not self.partidos_fecha.count() or not (self.activa or self.terminada):
             self.actualizar_partidos()
         return self.partidos_fecha.order_by('-estado')
 
