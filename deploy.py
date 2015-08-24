@@ -2,6 +2,7 @@ from contextlib import contextmanager
 import os
 
 import paramiko
+from termcolor import colored
 
 
 class Task():
@@ -32,17 +33,18 @@ class Task():
 
     def execute(self, cmd):
         cmd = self.get_full_cmd(cmd)
-        print("[%s] Executing: %s" %
-              (self.client_config['hostname'], cmd))
+        print("[{}] Executing: {}".format(self.client_config['hostname'], cmd))
         stdin, stdout, stderr = self.client.exec_command(cmd)
-        output = ''.join(stdout.readlines())
-        errput = ''.join(stderr.readlines())
-        if output:
-            print("[%s] %s" %
-                  (self.client_config['hostname'], output))
-        if errput:
-            print("[%s] %s" %
-                  (self.client_config['hostname'], errput))
+        while not stdout.channel.exit_status_ready():
+            while stdout.channel.recv_ready():
+                print(colored("[{}] {}".format(self.client_config['hostname'],
+                              stdout.channel.recv(1024).decode('utf8')),
+                              'green'))
+
+            while stderr.channel.recv_stderr_ready():
+                print(colored("[{}] {}".format(self.client_config['hostname'],
+                              stderr.channel.recv_stderr(1024).decode('utf8')),
+                              'red'))
 
     def get_full_cmd(self, cmd):
         full_cmd = ''
@@ -82,7 +84,7 @@ def deploy(env):
             task.execute('pip install --upgrade -r requirements.txt')
             task.execute('python manage.py migrate')
             task.execute('python manage.py collectstatic --noinput')
-            task.execute('kill -HUP `cat gunicorn.pid`')
+            task.execute(sudo('supervisorctl restart all'))
 
 
 def get_sytem_packages():
@@ -100,5 +102,5 @@ def provision(env):
     task.execute(sudo('pip3 install virtualenvwrapper'))
     task.execute('virtualenv ~/.virtualenvs/aguante/')
 
-#provision('aguante')
+# provision('aguante')
 deploy('aguante')
