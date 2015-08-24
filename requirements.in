@@ -6,4 +6,4 @@ django-grappelli
 gunicorn
 paramiko
 pyquery
-
+termcolor

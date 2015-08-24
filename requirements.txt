@@ -11,7 +11,7 @@ celery==3.1.18
 cssselect==0.9.1          # via pyquery
 django-grappelli==2.7.1
 django==1.8.4
-djangorestframework==3.2.2
+djangorestframework==3.2.3
 ecdsa==0.13               # via paramiko
 gunicorn==19.3.0
 kombu==3.0.26             # via celery
@@ -21,3 +21,4 @@ pillow==2.9.0
 pycrypto==2.6.1           # via paramiko
 pyquery==1.2.9
 pytz==2015.4              # via celery
+termcolor==1.1.0
