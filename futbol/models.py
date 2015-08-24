@@ -60,6 +60,10 @@ class Partido(models.Model):
                                                           visitante=self.equipo_visitante.nombre,
                                                           torneo=self.fecha.torneo.nombre)
 
+    def save(self, *args, **kwargs):
+        self.timestamp = timezone.now()
+        return super().save(*args, **kwargs)
+
     @property
     def texto_estado(self):
         if self.estado == EstadoPartido.NO_EMPEZADO:
@@ -93,6 +97,7 @@ class Fecha(models.Model):
                 fecha_activa.save()
             except Fecha.DoesNotExist:
                 pass
+        self.ultima_actualizacion = timezone.now()
         return super().save(*args, **kwargs)
 
     def _get_data_partidos(self):
@@ -113,10 +118,13 @@ class Fecha(models.Model):
                     nombre=data_partido['equipo_local']),
                 equipo_visitante=Equipo.objects.get(
                     nombre=data_partido['equipo_visitante']))
-            partido.goles_local = data_partido['goles_local']
-            partido.goles_visitante = data_partido['goles_visitante']
-            partido.estado = data_partido['estado']
-            partido.save()
+
+            if partido.estado != EstadoPartido.TERMINADO:
+                logger.info("{} actualizable".format(partido))
+                partido.goles_local = data_partido['goles_local']
+                partido.goles_visitante = data_partido['goles_visitante']
+                partido.estado = data_partido['estado']
+                partido.save()
 
         # Si todos los partidos están terminados, marcar
         # la fecha siguiente como activa
@@ -143,7 +151,7 @@ class Fecha(models.Model):
         # Hay que actualizar manualmente
         if not self.partidos_fecha.count() or not (self.activa or self.terminada):
             self.actualizar_partidos()
-        return self.partidos_fecha.order_by('-estado')
+        return self.partidos_fecha.order_by('-estado', 'timestamp')
 
 
 class Torneo(models.Model):
