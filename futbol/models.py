@@ -120,7 +120,6 @@ class Fecha(models.Model):
                     nombre=data_partido['equipo_visitante']))
 
             if partido.estado != EstadoPartido.TERMINADO:
-                logger.info("{} actualizable".format(partido))
                 partido.goles_local = data_partido['goles_local']
                 partido.goles_visitante = data_partido['goles_visitante']
                 partido.estado = data_partido['estado']
