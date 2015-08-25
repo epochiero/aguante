@@ -89,14 +89,8 @@ class Fecha(models.Model):
         return "Fecha {nro} {torneo}".format(nro=self.numero, torneo=self.torneo.nombre)
 
     def save(self, *args, **kwargs):
-        if self.activa:
-            try:
-                # Marcar como inactiva la fecha anterior (si es que lo está)
-                fecha_activa = Fecha.objects.get(activa=True)
-                fecha_activa.activa = False
-                fecha_activa.save()
-            except Fecha.DoesNotExist:
-                pass
+        if self.terminada:
+            self.activa = False
         self.ultima_actualizacion = timezone.now()
         return super().save(*args, **kwargs)
 
@@ -129,19 +123,24 @@ class Fecha(models.Model):
         # la fecha siguiente como activa
         if set(data_partido['estado'] for data_partido in data_partidos) ==\
                 set([EstadoPartido.TERMINADO]):
-            if self.activa:
-                try:
-                    proxima_fecha = self.torneo.fechas.get(
-                        numero=self.numero + 1)
-                    proxima_fecha.activa = True
-                    proxima_fecha.save()
-                    logger.info(
-                        "La nueva fecha activa es: {}".format(proxima_fecha))
-                except Fecha.DoesNotExist:
-                    # Es la última fecha
-                    self.activa = False
-            self.terminada = True
-            self.save()
+            self.terminar_fecha()
+
+    def terminar_fecha(self):
+        ''' Pone la fecha siguiente como activa, y marca
+        la actual como terminada '''
+        if self.activa:
+            try:
+                proxima_fecha = self.torneo.fechas.get(
+                    numero=self.numero + 1)
+                proxima_fecha.activa = True
+                proxima_fecha.save()
+                logger.info(
+                    "La nueva fecha activa es: {}".format(proxima_fecha))
+            except Fecha.DoesNotExist:
+                # Es la última fecha
+                self.activa = False
+        self.terminada = True
+        self.save()
 
     @property
     def partidos(self):

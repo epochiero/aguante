@@ -6,6 +6,7 @@ from django.test import TestCase
 from futbol.models import *
 from crawlers.crawlers import UniversoFutbolCrawler
 
+
 class TestEquipos(TestCase):
 
     @classmethod
@@ -112,12 +113,12 @@ class TestFechas(TestCase):
         self.assertIsNone(fecha_activa)
 
         fecha_1 = self.torneo_20.fechas.get(numero=1)
+        fecha_2 = self.torneo_20.fechas.get(numero=2)
         fecha_1.activa = True
         fecha_1.save()
         self.assertEqual(self.torneo_20.get_fecha_activa(), fecha_1)
-        fecha_2 = self.torneo_20.fechas.get(numero=2)
-        fecha_2.activa = True
-        fecha_2.save()
+
+        fecha_1.terminar_fecha()
         self.assertEqual(self.torneo_20.get_fecha_activa(), fecha_2)
         self.assertNotEqual(self.torneo_20.get_fecha_activa(), fecha_1)
 
