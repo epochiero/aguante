@@ -211,6 +211,9 @@
                                                 <div class="col-sm-12">
                                                     <div class="icono-estado icono-estado-{{ partido|icono_estado }}"></div>
                                                 <div class="descripcion-estado">{{ partido.texto_estado }}</div>
+                                                {% if partido.youtube_url %}
+                                                    <div class="youtube-link"><a href="http://youtube.com/watch?v={{ partido.youtube_url }}" target="_blank">Ver en YouTube</a></div>
+                                                {% endif %}
                                             </div>
                                             </div>
                                         </div>
