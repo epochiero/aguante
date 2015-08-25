@@ -1,9 +1,9 @@
 from __future__ import absolute_import
 
+from datetime import timedelta
 import os
 
 from celery import Celery
-from celery.schedules import crontab
 from django.conf import settings
 
 
@@ -13,8 +13,7 @@ app.conf.update(
     CELERYBEAT_SCHEDULE={
         'actualizar_partidos': {
             'task': 'aguante.tasks.actualizar_partidos',
-            # Cada minuto entre las 12pm y las 1am
-            'schedule': crontab(minute='*', hour='12-23,0'),
+            'schedule': timedelta(seconds=60),
         },
     })
 
