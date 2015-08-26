@@ -83,7 +83,7 @@ def deploy(env):
         with task.activate_virtualenv('aguante'):
             task.execute('pip install --upgrade -r requirements.txt')
             task.execute('python manage.py migrate')
-            task.execute('python manage.py collectstatic --noinput')
+            task.execute('python manage.py collectstatic -c --noinput')
             task.execute(sudo('supervisorctl restart all'))
 
 
