@@ -6,5 +6,6 @@ django-grappelli
 gunicorn
 paramiko
 pyquery
+redis
 requests
 termcolor
