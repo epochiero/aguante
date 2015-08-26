@@ -6,6 +6,8 @@ from .base import *
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', ''.join([random.SystemRandom().choice(
     'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)]))
 
+GDATA_ACCESS_KEY = os.environ.get('GDATA_ACCESS_KEY', None)
+
 DEBUG = True
 
 TEMPLATE_DEBUG = True

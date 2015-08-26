@@ -4,10 +4,12 @@ python:
 - '3.3'
 - '3.4'
 install: pip install -r requirements.txt coveralls
+services:
+- redis-server
 sudo: false
 script: coverage run manage.py test --settings aguante.settings.test
-after_success:
-  coveralls
+after_success: coveralls
 env:
   global:
-    secure: XlgQGGbaRORDO7jbUMhKL/td1U8KWTnKoTh52WHJYzGiq4qyVMDkQcxGV6o4e4rn55uJxa7OLdAFLusZDAOz/Z+K8IE5aDtVw1d+kbtnUDOm49YhvDD6aU1h76UP+6ppHvAPkXFb+mm+Zjor6rGtBP2BCbovfibLWF7y9ejsS4c=
+  - secure: XlgQGGbaRORDO7jbUMhKL/td1U8KWTnKoTh52WHJYzGiq4qyVMDkQcxGV6o4e4rn55uJxa7OLdAFLusZDAOz/Z+K8IE5aDtVw1d+kbtnUDOm49YhvDD6aU1h76UP+6ppHvAPkXFb+mm+Zjor6rGtBP2BCbovfibLWF7y9ejsS4c=
+  - secure: TQYwYqX5siVUVoFAWiQXehYNzbf018nzeUz+PfKkS1SEODOCRYOySN7s33g73EqYehW7RKlKq66SJXefpwmY0uPOGkh2IxrkoLefpkirp4mHYycrJ12hFxgz+2MGxOUKzRcPlBBqPeDaCnCCPeH1bdSpDF7Ul/jxLKld3IGZZ2g=
