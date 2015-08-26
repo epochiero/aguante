@@ -146,7 +146,7 @@ class Fecha(models.Model):
         return crawler.get_fecha(self.numero)
 
     def actualizar_partidos(self):
-        if self.terminada:
+        if self.terminada and self.partidos_fecha.count():
             return
 
         data_partidos = self._get_data_partidos()
