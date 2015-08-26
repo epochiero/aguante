@@ -88,7 +88,7 @@ def deploy(env):
 
 
 def get_sytem_packages():
-    package_list = ['git', 'python3-pip', 'rabbitmq-server', 'nginx',
+    package_list = ['git', 'python3-pip', 'redis-server', 'nginx',
                     'supervisor', 'libxml2-dev', 'libxslt-dev', 'python-dev',
                     'zlib1g-dev']
     return ' '.join(package_list)

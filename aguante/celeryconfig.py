@@ -16,11 +16,12 @@ app.conf.update(
             # Cada minuto entre las 12pm y las 1am
             'schedule': crontab(minute='*', hour='12-23,0'),
         },
-    })
+    },
+    BROKER_URL='redis://localhost:6379/0',
+    CELERY_RESULT_BACKEND='redis://localhost:6379/0',
+)
 
 app.autodiscover_tasks(['aguante'])
 
 if __name__ == '__main__':
     app.start()
-
-
