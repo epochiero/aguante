@@ -89,7 +89,7 @@ class Partido(models.Model):
             logger.error("Completar nombres de youtube!! {}".format(self))
             return
 
-        params = {"part": "snippet", "eventType": "completed",
+        params = {"part": "snippet", "eventType": "live",
                   "type": "video", "channelId": "UCAGaiAGJg1B3l-hpLpPcdvg",
                   "order": "date", "key": ACCESS_KEY}
         params.update({"q": self._get_youtube_query()})
