@@ -56,7 +56,7 @@ class TestEquipos(TestCase):
         self.torneo_30_2.equipos_cargados = False
         self.torneo_20.cargar_equipos()
         self.torneo_30.cargar_equipos()
-        self.torneo_30_2.equipos_cargados = False
+        self.torneo_30_2.cargar_equipos()
         for equipo in self.torneo_20.equipos.all():
             self.assertNotEqual(equipo.escudo, None)
         for equipo in self.torneo_30.equipos.all():
