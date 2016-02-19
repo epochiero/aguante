@@ -23,40 +23,45 @@ class TestEquipos(TestCase):
             nombre="Torneo Transicion 2014", universofutbol_id="896")
         self.torneo_30 = Torneo.objects.create(
             nombre="Torneo 2015", universofutbol_id="945")
+        self.torneo_30_2 = Torneo.objects.create(
+            nombre="Torneo 2016", universofutbol_id="1050")
 
     def test_cargar_equipos(self):
-        self.torneo_20.cargar_equipos()
-        self.assertTrue(self.torneo_20.equipos_cargados)
-        self.assertEqual(self.torneo_20.equipos.count(), 20)
-
-        self.torneo_30.cargar_equipos()
-        self.assertTrue(self.torneo_30.equipos_cargados)
-        self.assertEqual(self.torneo_30.equipos.count(), 30)
-
         # cargar_equipos() es idempotente
-        self.torneo_20.cargar_equipos()
-        self.assertTrue(self.torneo_20.equipos_cargados)
-        self.assertEqual(self.torneo_20.equipos.count(), 20)
+        for i in range(2):
+            self.torneo_20.cargar_equipos()
+            self.assertTrue(self.torneo_20.equipos_cargados)
+            self.assertEqual(self.torneo_20.equipos.count(), 20)
 
-        self.torneo_30.cargar_equipos()
-        self.assertTrue(self.torneo_30.equipos_cargados)
-        self.assertEqual(self.torneo_30.equipos.count(), 30)
+            self.torneo_30.cargar_equipos()
+            self.assertTrue(self.torneo_30.equipos_cargados)
+            self.assertEqual(self.torneo_30.equipos.count(), 30)
+
+            self.torneo_30_2.cargar_equipos()
+            self.assertTrue(self.torneo_30_2.equipos_cargados)
+            self.assertEqual(self.torneo_30_2.equipos.count(), 30)
 
         # escudos
         for equipo in self.torneo_20.equipos.all():
             self.assertNotEqual(equipo.escudo, None)
         for equipo in self.torneo_30.equipos.all():
             self.assertNotEqual(equipo.escudo, None)
+        for equipo in self.torneo_30_2.equipos.all():
+            self.assertNotEqual(equipo.escudo, None)
 
         # borrar equipos pero no los escudos en disco
         Equipo.objects.all().delete()
         self.torneo_20.equipos_cargados = False
         self.torneo_30.equipos_cargados = False
+        self.torneo_30_2.equipos_cargados = False
         self.torneo_20.cargar_equipos()
         self.torneo_30.cargar_equipos()
+        self.torneo_30_2.equipos_cargados = False
         for equipo in self.torneo_20.equipos.all():
             self.assertNotEqual(equipo.escudo, None)
         for equipo in self.torneo_30.equipos.all():
+            self.assertNotEqual(equipo.escudo, None)
+        for equipo in self.torneo_30_2.equipos.all():
             self.assertNotEqual(equipo.escudo, None)
 
     def test_torneo_activo(self):
@@ -88,43 +93,42 @@ class TestFechas(TestCase):
             nombre="Torneo Transicion 2014", universofutbol_id="896")
         self.torneo_30 = Torneo.objects.create(
             nombre="Torneo 2015", universofutbol_id="945")
+        self.torneo_30_2= Torneo.objects.create(
+            nombre="Torneo 2016", universofutbol_id="1050")
 
         # Crear fechas
         self.torneo_20.cargar_fechas()
         self.torneo_30.cargar_fechas()
+        self.torneo_30_2.cargar_fechas()
 
     def test_cargar_fechas(self):
-        self.assertEqual(
-            self.torneo_20.fechas.count(), self.torneo_20.cantidad_fechas)
-        self.assertEqual(
-            self.torneo_30.fechas.count(), self.torneo_30.cantidad_fechas)
-
         # cargar_fechas() es idempotente
-        self.torneo_20.cargar_fechas()
-        self.assertEqual(
-            self.torneo_20.fechas.count(), self.torneo_20.cantidad_fechas)
-        self.torneo_30.cargar_fechas()
-        self.assertEqual(
-            self.torneo_30.fechas.count(), self.torneo_30.cantidad_fechas)
+        for i in range(2):
+            self.assertEqual(
+                self.torneo_20.fechas.count(), self.torneo_20.cantidad_fechas)
+            self.assertEqual(
+                self.torneo_30.fechas.count(), self.torneo_30.cantidad_fechas)
+            self.assertEqual(
+                self.torneo_30_2.fechas.count(), self.torneo_30_2.cantidad_fechas)
 
     def test_fecha_activa(self):
-        fecha_activa = self.torneo_20.get_fecha_activa()
+        fecha_activa = self.torneo_30_2.get_fecha_activa()
         # Por defecto, una fecha no está activa
         self.assertIsNone(fecha_activa)
 
-        fecha_1 = self.torneo_20.fechas.get(numero=1)
-        fecha_2 = self.torneo_20.fechas.get(numero=2)
+        fecha_1 = self.torneo_30_2.fechas.get(numero=1)
+        fecha_2 = self.torneo_30_2.fechas.get(numero=2)
         fecha_1.activa = True
         fecha_1.save()
-        self.assertEqual(self.torneo_20.get_fecha_activa(), fecha_1)
+        self.assertEqual(self.torneo_30_2.get_fecha_activa(), fecha_1)
 
         fecha_1.terminar_fecha()
-        self.assertEqual(self.torneo_20.get_fecha_activa(), fecha_2)
-        self.assertNotEqual(self.torneo_20.get_fecha_activa(), fecha_1)
+        self.assertEqual(self.torneo_30_2.get_fecha_activa(), fecha_2)
+        self.assertNotEqual(self.torneo_30_2.get_fecha_activa(), fecha_1)
 
     def test_get_partidos_fecha(self):
-        self.torneo_20.cargar_equipos()
-        fecha_1 = self.torneo_20.fechas.get(numero=1)
+        self.torneo_30_2.cargar_equipos()
+        fecha_1 = self.torneo_30_2.fechas.get(numero=1)
         fecha_1.actualizar_partidos()
         partidos = fecha_1.partidos.all()
         equipos_partidos = []
@@ -132,5 +136,5 @@ class TestFechas(TestCase):
             [partido.equipo_local for partido in partidos])
         equipos_partidos.extend(
             [partido.equipo_visitante for partido in partidos])
-        for equipo in self.torneo_20.equipos.all():
+        for equipo in self.torneo_30_2.equipos.all():
             self.assertIn(equipo, equipos_partidos)

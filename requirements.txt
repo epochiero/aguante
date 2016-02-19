@@ -10,7 +10,7 @@ billiard==3.3.0.21        # via celery
 celery==3.1.19
 cssselect==0.9.1          # via pyquery
 django-grappelli==2.7.2
-django==1.8.6
+Django==1.8.9
 djangorestframework==3.3.1
 ecdsa==0.13               # via paramiko
 gunicorn==19.3.0
