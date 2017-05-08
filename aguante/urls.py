@@ -2,20 +2,20 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from futbol.views import FechaViewSet, PartidoViewSet
+#from futbol.views import FechaViewSet, PartidoViewSet
 from rest_framework import routers
 
 # Routers provide an easy way of automatically determining the URL conf.
-router = routers.DefaultRouter()
-router.register(r'fecha', FechaViewSet)
-router.register(r'partido', PartidoViewSet)
+# router = routers.DefaultRouter()
+# router.register(r'fecha', FechaViewSet)
+# router.register(r'partido', PartidoViewSet)
 
 urlpatterns = (
     # Apps
     url(r'', include('frontend.urls')),
 
     # API
-    url(r'^api/', include(router.urls)),
+    # url(r'^api/', include(router.urls)),
 
     # Third-party
     url(r'^grappelli/', include('grappelli.urls')),
