@@ -12,21 +12,10 @@ from django.core.files import File
 from django.db import models
 from django.utils import timezone
 from io import BytesIO
-import requests
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
 logger = logging.getLogger(__name__)
-
-# Para obtener los links a YouTube
-YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3/search"
-try:
-    ACCESS_KEY = settings.GDATA_ACCESS_KEY
-except AttributeError:
-    logger.error(
-        "GDATA_ACCESS_KEY no está configurado, no se van a poder obtener los "
-        "links de youtube.")
-    ACCESS_KEY = None
 
 
 class Equipo(models.Model):
@@ -37,7 +26,6 @@ class Equipo(models.Model):
     nombre = models.CharField(max_length=50)
     escudo = models.ImageField(
         upload_to=EQUIPOS_ESCUDOS_PATH, blank=True, null=True)
-    nombre_youtube = models.CharField(max_length=50, default='')
 
     def __str__(self):
         return self.nombre
@@ -68,7 +56,6 @@ class Partido(models.Model):
         blank=True, null=True, default=timezone.now)
     estado = models.IntegerField(
         choices=ESTADO_CHOICES, default=EstadoPartido.NO_EMPEZADO)
-    youtube_url = models.CharField(blank=True, null=True, max_length=50)
 
     def __str__(self):
         return "{local} vs. {visitante}, {torneo}".format(local=self.equipo_local.nombre,
@@ -78,36 +65,6 @@ class Partido(models.Model):
     def save(self, *args, **kwargs):
         self.timestamp = timezone.now()
         return super().save(*args, **kwargs)
-
-    @app.task(filter=task_method)
-    def generar_youtube_url(self):
-        if not ACCESS_KEY:
-            return
-
-        if not self.equipo_local.nombre_youtube or not self.equipo_visitante.nombre_youtube:
-            logger.error("Completar nombres de youtube!! {}".format(self))
-            return
-
-        params = {"part": "snippet", "eventType": "live",
-                  "type": "video", "channelId": "UCAGaiAGJg1B3l-hpLpPcdvg",
-                  "order": "date", "key": ACCESS_KEY}
-        params.update({"q": self._get_youtube_query()})
-        response = requests.get(YOUTUBE_API_URL, params=params)
-
-        try:
-            youtube_url_partido = json.loads(
-                response.text)['items'][0]['id']['videoId']
-            logger.info(
-                "url de youtube para {}: {}".format(self, youtube_url_partido))
-            self.youtube_url = youtube_url_partido
-            self.save()
-        except:
-            logger.error("Error al buscar la url de youtube para {}\nQuery: {}\nRespuesta: {}:".format(
-                self, self._get_youtube_query(), response.text))
-
-    def _get_youtube_query(self):
-        return "{} {} fecha {}".format(self.equipo_local.nombre_youtube,
-                                       self.equipo_visitante.nombre_youtube, self.fecha.numero)
 
     @property
     def texto_estado(self):
@@ -163,10 +120,6 @@ class Fecha(models.Model):
                 partido.goles_visitante = data_partido['goles_visitante']
                 partido.estado = data_partido['estado']
                 partido.save()
-
-            # Lo hacemos asíncrono para no colgar la task
-            if partido.estado != EstadoPartido.NO_EMPEZADO and not partido.youtube_url:
-                partido.generar_youtube_url.delay()
 
         # Si todos los partidos están terminados, marcar
         # la fecha siguiente como activa

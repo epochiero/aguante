@@ -5,8 +5,6 @@ SECRET_KEY = os.environ['SECRET_KEY']
 
 ALLOWED_HOSTS = [os.environ['ALLOWED_HOSTS']]
 
-GDATA_ACCESS_KEY = os.environ['GDATA_ACCESS_KEY']
-
 ADMINS = (
 	('Ezequiel Pochiero', 'epochiero@gmail.com'),
 )
