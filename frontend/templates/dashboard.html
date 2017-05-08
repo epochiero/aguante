@@ -25,13 +25,6 @@
     <!-- Custom Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
 
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-
 </head>
 
 <body>
@@ -50,108 +43,6 @@
                 </button>
                 <a class="navbar-brand" href="index.html">Aguante!</a>
             </div>
-            <!-- Top Menu Items -->
-            <!--<ul class="nav navbar-right top-nav">
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-envelope"></i> <b class="caret"></b></a>
-                    <ul class="dropdown-menu message-dropdown">
-                        <li class="message-preview">
-                            <a href="#">
-                                <div class="media">
-                                    <span class="pull-left">
-                                        <img class="media-object" src="http://placehold.it/50x50" alt="">
-                                    </span>
-                                    <div class="media-body">
-                                        <h5 class="media-heading"><strong>John Smith</strong>
-                                        </h5>
-                                        <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
-                                        <p>Lorem ipsum dolor sit amet, consectetur...</p>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="message-preview">
-                            <a href="#">
-                                <div class="media">
-                                    <span class="pull-left">
-                                        <img class="media-object" src="http://placehold.it/50x50" alt="">
-                                    </span>
-                                    <div class="media-body">
-                                        <h5 class="media-heading"><strong>John Smith</strong>
-                                        </h5>
-                                        <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
-                                        <p>Lorem ipsum dolor sit amet, consectetur...</p>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="message-preview">
-                            <a href="#">
-                                <div class="media">
-                                    <span class="pull-left">
-                                        <img class="media-object" src="http://placehold.it/50x50" alt="">
-                                    </span>
-                                    <div class="media-body">
-                                        <h5 class="media-heading"><strong>John Smith</strong>
-                                        </h5>
-                                        <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
-                                        <p>Lorem ipsum dolor sit amet, consectetur...</p>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="message-footer">
-                            <a href="#">Read All New Messages</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bell"></i> <b class="caret"></b></a>
-                    <ul class="dropdown-menu alert-dropdown">
-                        <li>
-                            <a href="#">Alert Name <span class="label label-default">Alert Badge</span></a>
-                        </li>
-                        <li>
-                            <a href="#">Alert Name <span class="label label-primary">Alert Badge</span></a>
-                        </li>
-                        <li>
-                            <a href="#">Alert Name <span class="label label-success">Alert Badge</span></a>
-                        </li>
-                        <li>
-                            <a href="#">Alert Name <span class="label label-info">Alert Badge</span></a>
-                        </li>
-                        <li>
-                            <a href="#">Alert Name <span class="label label-warning">Alert Badge</span></a>
-                        </li>
-                        <li>
-                            <a href="#">Alert Name <span class="label label-danger">Alert Badge</span></a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="#">View All</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> John Smith <b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-user"></i> Profile</a>
-                        </li>
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-envelope"></i> Inbox</a>
-                        </li>
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-gear"></i> Settings</a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="#"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>-->
-            <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
                     <li>
@@ -196,21 +87,21 @@
                             <div class="panel-heading">
                                 <h3 class="panel-title"><i class="fa fa-calendar fa-fw"></i> Fecha {{ fecha.numero}}</h3>
                             </div>
-                            <div class="panel-body">
+                            <div class="panel-body" id="partidos_fecha">
                             {% for partido in fecha.partidos %}
                                 <li class="list-group-item">
-                                    <div class="row">
+                                    <div class="row" id ="row_partido_{{ partido.id }}">
                                         <div class="col-sm-3 text-center">
-                                            <img class="escudo" src="{% static partido.equipo_local.escudo.url %}"></img></p>
+                                            <img class="escudo" src="{{ partido.equipo_local.escudo.url }}"></img></p>
                                         </div>
                                         <div class="col-sm-6 text-center">
                                             <div class="row">
-                                                <h3>{{ partido.equipo_local.nombre }} {{ partido.goles_local }} - {{ partido.goles_visitante }} {{ partido.equipo_visitante.nombre }}</h3>
+                                                <h3>{{ partido.equipo_local.nombre }} <span id="goles_local">{{ partido.goles_local }}</span> - <span id="goles_visitante">{{ partido.goles_visitante }}</span> {{ partido.equipo_visitante.nombre }}</h3>
                                             </div>
                                             <div class="row-estado row">
                                                 <div class="col-sm-12">
                                                     <div class="icono-estado icono-estado-{{ partido|icono_estado }}"></div>
-                                                <div class="descripcion-estado">{{ partido.texto_estado }}</div>
+                                                <div class="descripcion-estado" id="texto_estado">{{ partido.texto_estado }}</div>
                                                 {% if partido.youtube_url %}
                                                     <div class="youtube-link"><a href="http://youtube.com/watch?v={{ partido.youtube_url }}" target="_blank">Ver en YouTube</a></div>
                                                 {% endif %}
@@ -218,7 +109,7 @@
                                             </div>
                                         </div>
                                         <div class="col-sm-3 text-center">
-                                            <img class="escudo" src="{% static partido.equipo_visitante.escudo.url %}">
+                                            <img class="escudo" src="{{ partido.equipo_visitante.escudo.url }}">
                                         </div>
                                     </div>
                                 </li>
@@ -243,6 +134,15 @@
 
     <!-- Bootstrap Core JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <!-- Backbone.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.2.2/backbone-min.js"></script>
+
+    <!-- Application -->
+    <script src="{% static 'frontend/js/models.js' %}"></script>
+    <script src="{% static 'frontend/js/views.js' %}"></script>
+    <script src="{% static 'frontend/js/app.js' %}"></script>
 
 </body>
 </html>
