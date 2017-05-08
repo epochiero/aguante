@@ -10,8 +10,6 @@ GDATA_ACCESS_KEY = os.environ.get('GDATA_ACCESS_KEY', None)
 
 DEBUG = True
 
-TEMPLATE_DEBUG = True
-
 ALLOWED_HOSTS = []
 
 # Database

@@ -4,7 +4,6 @@ import logging
 import os
 
 from aguante.celeryconfig import app
-from celery.contrib.methods import task_method
 from common.models import EstadoPartido
 from crawlers.crawlers import UniversoFutbolCrawler
 from django.conf import settings

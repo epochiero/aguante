@@ -1,16 +1,16 @@
 from django.conf import settings
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
+from futbol.views import FechaViewSet, PartidoViewSet
 from rest_framework import routers
-
-from futbol.views import EquipoViewSet
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
-router.register(r'equipos', EquipoViewSet)
+router.register(r'fecha', FechaViewSet)
+router.register(r'partido', PartidoViewSet)
 
-urlpatterns = patterns('',
+urlpatterns = (
     # Apps
     url(r'', include('frontend.urls')),
 
@@ -29,4 +29,4 @@ if settings.DEBUG:
     )
 
     # Media files
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += tuple(static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))
