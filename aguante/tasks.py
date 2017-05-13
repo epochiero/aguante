@@ -9,7 +9,7 @@ from futbol.models import Torneo
 logger = get_task_logger(__name__)
 
 
-@app.task()
+@app.task
 def actualizar_partidos():
     """ Tarea para actualizar información de partidos en tiempo real.
         Solamente actualiza info para el torneo activo y la fecha activa
