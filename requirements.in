@@ -4,6 +4,7 @@ celery
 coverage
 djangorestframework
 django-grappelli
+honcho
 gunicorn
 paramiko
 pyquery
