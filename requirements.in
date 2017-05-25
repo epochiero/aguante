@@ -2,6 +2,7 @@ Django==1.11.1
 Pillow
 celery
 coverage
+dj-static
 djangorestframework
 django-grappelli
 honcho

@@ -38,12 +38,12 @@ class Task():
         while not stdout.channel.exit_status_ready():
             while stdout.channel.recv_ready():
                 print(colored("[{}] {}".format(self.client_config['hostname'],
-                              stdout.channel.recv(1024).decode('utf8')),
+                                               stdout.channel.recv(1024).decode('utf8')),
                               'green'))
 
             while stderr.channel.recv_stderr_ready():
                 print(colored("[{}] {}".format(self.client_config['hostname'],
-                              stderr.channel.recv_stderr(1024).decode('utf8')),
+                                               stderr.channel.recv_stderr(1024).decode('utf8')),
                               'red'))
 
     def get_full_cmd(self, cmd):
