@@ -5,7 +5,6 @@
 #    pip-compile --output-file requirements.txt requirements.in
 #
 amqp==2.1.4               # via kombu
-appdirs==1.4.3            # via setuptools
 asn1crypto==0.22.0        # via cryptography
 billiard==3.5.0.2         # via celery
 celery==4.0.2
@@ -15,27 +14,26 @@ cryptography==1.8.1       # via paramiko
 cssselect==1.0.1          # via pyquery
 dj-static==0.0.6
 django-grappelli==2.10.1
-Django==1.11.1
+django==1.11.1
 djangorestframework==3.6.3
 gunicorn==19.7.1
 honcho==1.0.1
 idna==2.5                 # via cryptography
 kombu==4.0.2              # via celery
 lxml==3.7.3               # via pyquery
-olefile==0.44             # via pillow
-packaging==16.8           # via cryptography, setuptools
+packaging==16.8           # via cryptography
 paramiko==2.1.2
-Pillow==4.1.1
+pillow==6.2.0
 pyasn1==0.2.3             # via paramiko
 pycparser==2.17           # via cffi
 pyparsing==2.2.0          # via packaging
 pyquery==1.2.17
 pytz==2017.2              # via celery, django
 redis==2.10.5
-six==1.10.0               # via cryptography, packaging, setuptools
+six==1.10.0               # via cryptography, packaging
 static3==0.7.0            # via dj-static
 termcolor==1.1.0
 vine==1.1.3               # via amqp
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools                # via cryptography
+# setuptools==41.4.0        # via cryptography
