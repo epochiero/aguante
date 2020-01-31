@@ -6,7 +6,6 @@ from django.conf import settings
 
 
 app = Celery('aguante', include=['aguante.tasks'])
-app.config_from_object('django.conf:settings')
 app.conf.update(
     beat_schedule={
         'actualizar_partidos': {
@@ -15,8 +14,6 @@ app.conf.update(
             'schedule': crontab(minute='*', hour='12-23,0'),
         },
     },
-    broker_url='redis://localhost:6379/0',
-    result_backend='redis://localhost:6379/0',
     timezone='America/Argentina/Buenos_Aires',
 )
 

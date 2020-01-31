@@ -20,7 +20,7 @@ def actualizar_partidos():
     fecha_activa = torneo_activo.get_fecha_activa()
     if not fecha_activa:
         logger.info("No hay ninguna fecha marcada como activa para el torneo {}"
-                    .format(torneo_activo.id))
+                    .format(torneo_activo.nombre))
         return
 
     logger.info("Actualizando partidos, {}".format(fecha_activa))

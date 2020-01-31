@@ -8,7 +8,7 @@ SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 ALLOWED_HOSTS = ['*']
 
 ADMINS = (
-	('Ezequiel Pochiero', 'epochiero@gmail.com'),
+	('Ezequiel Pochiero', 'ezequiel.pochiero@gmail.com'),
 )
 
 # Database
