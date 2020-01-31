@@ -1,10 +1,13 @@
-from django.shortcuts import render
-from rest_framework import viewsets
-
-from .models import Equipo
-from .serializers import EquipoSerializer
+from .models import Fecha, Partido
+from .serializers import FechaSerializer, PartidoSerializer
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 
-class EquipoViewSet(viewsets.ModelViewSet):
-    queryset = Equipo.objects.all()
-    serializer_class = EquipoSerializer
+class FechaViewSet(ReadOnlyModelViewSet):
+    queryset = Fecha.objects.all()
+    serializer_class = FechaSerializer
+
+
+class PartidoViewSet(ReadOnlyModelViewSet):
+    queryset = Partido.objects.all()
+    serializer_class = PartidoSerializer

@@ -46,12 +46,12 @@ class Partido(models.Model):
                       (EstadoPartido.TERMINADO, 'Terminado'),
                       )
 
-    equipo_local = models.ForeignKey('Equipo', related_name='partidos_local')
+    equipo_local = models.ForeignKey('Equipo', related_name='partidos_local', on_delete=models.PROTECT)
     goles_local = models.IntegerField(blank=True, null=True)
     equipo_visitante = models.ForeignKey(
-        'Equipo', related_name='partidos_visitante')
+        'Equipo', related_name='partidos_visitante', on_delete=models.PROTECT)
     goles_visitante = models.IntegerField(blank=True, null=True)
-    fecha = models.ForeignKey('Fecha', related_name='partidos_fecha')
+    fecha = models.ForeignKey('Fecha', related_name='partidos_fecha', on_delete=models.PROTECT)
     timestamp = models.DateTimeField(
         blank=True, null=True, default=timezone.now)
     estado = models.IntegerField(
@@ -82,10 +82,14 @@ class Fecha(models.Model):
 
     """ Modelo para una fecha de un torneo. """
     numero = models.PositiveIntegerField()
-    torneo = models.ForeignKey('Torneo', related_name='fechas')
+    torneo = models.ForeignKey('Torneo', related_name='fechas', on_delete=models.CASCADE)
     activa = models.BooleanField(default=False)
     terminada = models.BooleanField(default=False)
     ultima_actualizacion = models.DateTimeField(default=timezone.now)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.crawler = UniversoFutbolCrawler(self.torneo.universofutbol_id)
 
     def __str__(self):
         return "Fecha {nro} {torneo}".format(nro=self.numero, torneo=self.torneo.nombre)
@@ -97,9 +101,7 @@ class Fecha(models.Model):
         return super().save(*args, **kwargs)
 
     def _get_data_partidos(self):
-        # TODO: no instanciar en cada llamada
-        crawler = UniversoFutbolCrawler(self.torneo.universofutbol_id)
-        return crawler.get_fecha(self.numero)
+        return self.crawler.get_fecha(self.numero)
 
     def actualizar_partidos(self):
         if self.terminada and self.partidos_fecha.count():
@@ -112,14 +114,11 @@ class Fecha(models.Model):
             partido, _ = self.partidos_fecha.get_or_create(
                 equipo_local=Equipo.objects.get(
                     nombre=data_partido['equipo_local']),
-                equipo_visitante=Equipo.objects.get(
-                    nombre=data_partido['equipo_visitante']))
-
-            if partido.estado != EstadoPartido.TERMINADO:
-                partido.goles_local = data_partido['goles_local']
-                partido.goles_visitante = data_partido['goles_visitante']
-                partido.estado = data_partido['estado']
-                partido.save()
+                equipo_visitante=Equipo.objects.get(nombre=data_partido['equipo_visitante']))
+            partido.goles_local = data_partido['goles_local']
+            partido.goles_visitante = data_partido['goles_visitante']
+            partido.estado = data_partido['estado']
+            partido.save()
 
         # Si todos los partidos están terminados, marcar
         # la fecha siguiente como activa
@@ -165,6 +164,10 @@ class Torneo(models.Model):
     equipos_cargados = models.BooleanField(default=False)
     cantidad_fechas = models.PositiveIntegerField(null=True)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.crawler = UniversoFutbolCrawler(self.universofutbol_id)
+
     def __str__(self):
         return self.nombre
 
@@ -186,9 +189,8 @@ class Torneo(models.Model):
         if self.equipos_cargados:
             logger.info("Los equipos ya han sido cargados para este torneo.")
             return
-        crawler = UniversoFutbolCrawler(self.universofutbol_id)
-        equipos = crawler.get_equipos()
 
+        equipos = self.crawler.get_equipos()
         for equipo in equipos:
             self._cargar_equipo(equipo)
         self.equipos_cargados = True
@@ -196,8 +198,7 @@ class Torneo(models.Model):
 
     def cargar_fechas(self):
         if not self.cantidad_fechas:
-            crawler = UniversoFutbolCrawler(self.universofutbol_id)
-            self.cantidad_fechas = crawler.get_cantidad_fechas()
+            self.cantidad_fechas = self.crawler.get_cantidad_fechas()
             self.save()
 
         for i in range(1, self.cantidad_fechas + 1):

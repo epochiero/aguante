@@ -72,8 +72,10 @@ class UniversoFutbolCrawler():
         if not tabla_equipos:
             # Hack para manejar el Torneo de los 30 (id=945)
             tabla_equipos = html('td[colspan="30"]').parent().parent()
-            lista_equipos = pq(tabla_equipos('tr')[1]).contents()
-            lista_equipos.extend(pq(tabla_equipos('tr')[2]).contents())
+            lista_equipos = []
+            # 3 filas de equipos
+            for i in range(1, 4):
+                lista_equipos.extend(pq(tabla_equipos('tr')[i]).contents())
         else:
             lista_equipos = pq(tabla_equipos('tr')[1]).contents()
         escudos = [pq(elem)('a')('img') for elem in lista_equipos]

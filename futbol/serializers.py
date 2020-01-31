@@ -1,30 +1,17 @@
-from .models import Equipo, Fecha, Partido, Torneo
+from .models import Fecha, Partido
 from rest_framework import serializers
-
-
-class EquipoSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Equipo
-        fields = ('nombre', 'escudo')
-
-
-class FechaSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Fecha
-        #fields = ('nombre', 'escudo')
 
 
 class PartidoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Partido
-        #fields = ('nombre', 'escudo')
+        fields = ('id', 'goles_local', 'goles_visitante', 'estado')
 
 
-class TorneoSerializer(serializers.ModelSerializer):
+class FechaSerializer(serializers.ModelSerializer):
+    partidos = PartidoSerializer(many=True)
 
     class Meta:
-        model = Torneo
-        #fields = ('nombre', 'escudo')
+        model = Fecha
+        fields = ('id', 'numero', 'terminada', 'partidos')

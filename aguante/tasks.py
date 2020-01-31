@@ -1,8 +1,7 @@
-from aguante.celeryconfig import app
 from celery.utils.log import get_task_logger
-from crawlers.crawlers import UniversoFutbolCrawler
-from futbol.models import Torneo
 
+from aguante.celeryconfig import app
+from futbol.models import Torneo
 
 logger = get_task_logger(__name__)
 

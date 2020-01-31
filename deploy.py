@@ -28,7 +28,7 @@ class Task():
         return {'username': user_config['user'],
                 'hostname': user_config['hostname'],
                 'key_filename': user_config['identityfile'][0],
-                'port': int(user_config['port'])
+                'port': 22
                 }
 
     def execute(self, cmd):
@@ -47,15 +47,15 @@ class Task():
                               'red'))
 
     def get_full_cmd(self, cmd):
-        full_cmd = ''
+        full_cmd = "bash -l -c '"
         exec_path = self.OVERRIDES.get('exec_path', None)
         virtualenv = self.OVERRIDES.get('virtualenv', None)
         if exec_path:
             full_cmd += "cd %s; " % (exec_path)
         if virtualenv:
-            full_cmd += "source /home/aguante/.virtualenvs/%s/bin/activate; " % (
+            full_cmd += "source /home/pi/.virtualenvs/%s/bin/activate; " % (
                 virtualenv)
-        return full_cmd + "/bin/bash -l -c '%s'" % (cmd)
+        return full_cmd + "%s" % (cmd) + "'"
 
     @contextmanager
     def cd(self, path):
@@ -78,7 +78,7 @@ def sudo(cmd, user=None):
 
 def deploy(env):
     task = Task(env)
-    with task.cd('/home/aguante/aguante'):
+    with task.cd('/home/pi/aguante'):
         task.execute('git pull')
         with task.activate_virtualenv('aguante'):
             task.execute('pip install --upgrade -r requirements.txt')

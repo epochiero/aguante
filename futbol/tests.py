@@ -1,11 +1,14 @@
 import shutil
 import tempfile
+from collections import namedtuple
 
 from django.conf import settings
 from django.test import TestCase
-from futbol.models import *
-from crawlers.crawlers import UniversoFutbolCrawler
 
+from futbol.models import *
+
+TorneoTest = namedtuple('TorneoTest', ['torneo', 'num_equipos'])
+FechaTest = namedtuple('FechaTest', ['fecha', 'num_equipos'])
 
 class TestEquipos(TestCase):
 
@@ -19,56 +22,37 @@ class TestEquipos(TestCase):
 
     def setUp(self):
         # Crear torneos primero
-        self.torneo_2015 = Torneo.objects.create(
-            nombre="Torneo 2015", universofutbol_id="945")
-        self.torneo_2016 = Torneo.objects.create(
-            nombre="Torneo 2016", universofutbol_id="1050")
-        self.torneo_2016_17 = Torneo.objects.create(
-            nombre="Torneo 2016/17", universofutbol_id="1093")
+        self.torneos = []
+        self.torneos.append(TorneoTest(Torneo.objects.create(
+            nombre="Torneo 2015", universofutbol_id="945"), 30))
+        self.torneos.append(TorneoTest(Torneo.objects.create(
+            nombre="Torneo 2016", universofutbol_id="1050"), 30))
+        self.torneos.append(TorneoTest(Torneo.objects.create(
+            nombre="Torneo 2016/17", universofutbol_id="1093"), 30))
+        self.torneos.append(TorneoTest(Torneo.objects.create(
+            nombre="Torneo 2017/18", universofutbol_id="1213"), 28))
 
     def test_cargar_equipos(self):
         # cargar_equipos() es idempotente
         for i in range(2):
-            self.torneo_2015.cargar_equipos()
-            self.assertTrue(self.torneo_2015.equipos_cargados)
-            self.assertEqual(self.torneo_2015.equipos.count(), 30)
+            for torneo in self.torneos:
+                torneo.torneo.cargar_equipos()
+                self.assertTrue(torneo.torneo.equipos_cargados)
+                self.assertEqual(torneo.torneo.equipos.count(), torneo.num_equipos)
 
-            self.torneo_2016.cargar_equipos()
-            self.assertTrue(self.torneo_2016.equipos_cargados)
-            self.assertEqual(self.torneo_2016.equipos.count(), 30)
+        for torneo in self.torneos:
+            # escudos
+            for equipo in torneo.torneo.equipos.all():
+                self.assertNotEqual(equipo.escudo, None)
 
-            self.torneo_2016_17.cargar_equipos()
-            self.assertTrue(self.torneo_2016_17.equipos_cargados)
-            self.assertEqual(self.torneo_2016_17.equipos.count(), 30)
-
-        # escudos
-        for equipo in self.torneo_2015.equipos.all():
-            self.assertNotEqual(equipo.escudo, None)
-        for equipo in self.torneo_2016.equipos.all():
-            self.assertNotEqual(equipo.escudo, None)
-        for equipo in self.torneo_2016_17.equipos.all():
-            self.assertNotEqual(equipo.escudo, None)
-
-        # borrar equipos pero no los escudos en disco
-        Equipo.objects.all().delete()
-        self.torneo_2015.equipos_cargados = False
-        self.torneo_2016.equipos_cargados = False
-        self.torneo_2016_17.equipos_cargados = False
-        self.torneo_2015.cargar_equipos()
-        self.torneo_2016.cargar_equipos()
-        self.torneo_2016_17.cargar_equipos()
-        for equipo in self.torneo_2015.equipos.all():
-            self.assertNotEqual(equipo.escudo, None)
-        for equipo in self.torneo_2016.equipos.all():
-            self.assertNotEqual(equipo.escudo, None)
-        for equipo in self.torneo_2016_17.equipos.all():
-            self.assertNotEqual(equipo.escudo, None)
+    def test_escudos_en_disco_no_se_borran(self):
+        # TODO: validar que cuando se borra el equipo, la imagen queda en disco
+        pass
 
     def test_torneo_activo(self):
         torneo_activo = Torneo.get_activo()
         # Por defecto, un torneo no está activo
         self.assertIsNone(torneo_activo)
-
         self.torneo_2016.activo = True
         self.torneo_2016.save()
         self.assertEqual(Torneo.get_activo(), self.torneo_2016)
