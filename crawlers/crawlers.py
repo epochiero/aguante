@@ -10,8 +10,8 @@ class UniversoFutbolCrawler():
 
     """ Recupera resultados y equipos para un torneo. """
 
-    FECHA_URL = "http://www.universofutbol.com/plantillas/archivos/fecha_argentina.php?div=1&camp={camp}&fecha={fecha}"
-    TORNEO_URL = "http://www.universofutbol.com/plantillas/archivos/noticias.php?div=1&camp={camp}"
+    FECHA_URL = "https://universofutbol.com/plantillas/archivos/fecha_argentina.php?div=1&camp={camp}&fecha={fecha}"
+    TORNEO_URL = "https://universofutbol.com/plantillas/archivos/noticias.php?div=1&camp={camp}"
 
     def __init__(self, camp_id):
         self.camp_id = camp_id
@@ -68,14 +68,13 @@ class UniversoFutbolCrawler():
     def get_equipos(self):
         target_url = self.TORNEO_URL.format(camp=self.camp_id)
         html = pq(target_url)
-        tabla_equipos = html('td[colspan="20"]').parent().parent()
-        if not tabla_equipos:
-            # Hack para manejar el Torneo de los 30 (id=945)
-            tabla_equipos = html('td[colspan="30"]').parent().parent()
-            lista_equipos = pq(tabla_equipos('tr')[1]).contents()
-            lista_equipos.extend(pq(tabla_equipos('tr')[2]).contents())
-        else:
-            lista_equipos = pq(tabla_equipos('tr')[1]).contents()
+        tabla_equipos = None
+        cantidad_equipos = 20
+        while not tabla_equipos and cantidad_equipos <= 30:
+            tabla_equipos = html('td[colspan="{}"]'.format(cantidad_equipos)).parent().parent()
+            cantidad_equipos += 1
+        lista_equipos = pq(tabla_equipos('tr')[1]).contents()
+        lista_equipos.extend(pq(tabla_equipos('tr')[2]).contents())
         escudos = [pq(elem)('a')('img') for elem in lista_equipos]
 
         return [{'nombre': equipo.attr('alt'),
