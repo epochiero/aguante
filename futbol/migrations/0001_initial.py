@@ -34,9 +34,9 @@ class Migration(migrations.Migration):
                 ('goles_visitante', models.IntegerField(null=True, blank=True)),
                 ('timestamp', models.DateTimeField(null=True, blank=True)),
                 ('estado', models.IntegerField(choices=[(0, 'No empezado'), (1, 'En juego'), (2, 'Terminado')], default=0)),
-                ('equipo_local', models.ForeignKey(related_name='partidos_local', to='futbol.Equipo')),
-                ('equipo_visitante', models.ForeignKey(related_name='partidos_visitante', to='futbol.Equipo')),
-                ('fecha', models.ForeignKey(related_name='partidos', to='futbol.Fecha')),
+                ('equipo_local', models.ForeignKey(related_name='partidos_local', to='futbol.Equipo', on_delete=models.PROTECT)),
+                ('equipo_visitante', models.ForeignKey(related_name='partidos_visitante', to='futbol.Equipo', on_delete=models.PROTECT)),
+                ('fecha', models.ForeignKey(related_name='partidos', to='futbol.Fecha', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -54,7 +54,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='fecha',
             name='torneo',
-            field=models.ForeignKey(related_name='fechas', to='futbol.Torneo'),
+            field=models.ForeignKey(related_name='fechas', to='futbol.Torneo', on_delete=models.CASCADE),
         ),
         migrations.AlterUniqueTogether(
             name='fecha',

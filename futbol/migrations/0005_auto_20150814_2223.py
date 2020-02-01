@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='partido',
             name='fecha',
-            field=models.ForeignKey(to='futbol.Fecha', related_name='partidos_fecha'),
+            field=models.ForeignKey(to='futbol.Fecha', related_name='partidos_fecha', on_delete=models.CASCADE),
         ),
     ]

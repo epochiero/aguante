@@ -46,12 +46,12 @@ class Partido(models.Model):
                       (EstadoPartido.TERMINADO, 'Terminado'),
                       )
 
-    equipo_local = models.ForeignKey('Equipo', related_name='partidos_local')
+    equipo_local = models.ForeignKey('Equipo', related_name='partidos_local', on_delete=models.PROTECT)
     goles_local = models.IntegerField(blank=True, null=True)
     equipo_visitante = models.ForeignKey(
-        'Equipo', related_name='partidos_visitante')
+        'Equipo', related_name='partidos_visitante', on_delete=models.PROTECT)
     goles_visitante = models.IntegerField(blank=True, null=True)
-    fecha = models.ForeignKey('Fecha', related_name='partidos_fecha')
+    fecha = models.ForeignKey('Fecha', related_name='partidos_fecha', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(
         blank=True, null=True, default=timezone.now)
     estado = models.IntegerField(
@@ -82,7 +82,7 @@ class Fecha(models.Model):
 
     """ Modelo para una fecha de un torneo. """
     numero = models.PositiveIntegerField()
-    torneo = models.ForeignKey('Torneo', related_name='fechas')
+    torneo = models.ForeignKey('Torneo', related_name='fechas', on_delete=models.CASCADE)
     activa = models.BooleanField(default=False)
     terminada = models.BooleanField(default=False)
     ultima_actualizacion = models.DateTimeField(default=timezone.now)
